@@ -1,11 +1,11 @@
 {
-    "name"        : "lingam/framework",
+    "name"        : "lingam/validation",
     "description" : "The Lingam framework",
     "version"     : "1.0.0-dev",
-    "type"        : "project",
+    "type"        : "library",
     "keywords"    : [
         "lingam",
-        "framework"
+        "validation"
     ],
     "license"     : "MIT",
     "authors"     : [
