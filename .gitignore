@@ -2,3 +2,5 @@
 /vendor/
 /tests/
 /.idea/
+/composer.lock
+/src/index.php

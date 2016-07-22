@@ -76,7 +76,7 @@ class Validation
 
     /**
      * @param string $salt
-     * @param int    $iterationCount
+     * @param int $iterationCount
      * @return Validation
      */
     public function hash(string $salt, int $iterationCount = 13): Validation
@@ -204,9 +204,48 @@ class Validation
 
         $this->setRes((mb_strlen($this->getData()) > $data) ? true : false);
 
-        var_dump(mb_strlen($this->getData()));
-        var_dump($data);
-        var_dump($this->isRes());
+        if (!$this->isRes()) {
+            $this->setMessage($message);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param        $data
+     * @param string $message
+     * @return Validation
+     * Проверяет соответствуют ли данные максимальной длинне,
+     * в случае прохождения результат проверки передается далее,
+     * если нет, то передает сообщение об ошибке в $this->message
+     * и $this->res = false
+     */
+    public function maxLenght($data, string $message = 'Указано слишком много символов'): Validation
+    {
+        if (!$this->isRes()) return $this;
+
+        $this->setRes((mb_strlen($this->getData()) < $data) ? true : false);
+
+        if (!$this->isRes()) {
+            $this->setMessage($message);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param string $message
+     * @return Validation
+     * Проверяет необходимость заполнения поля - не меннее 1 символа,
+     * в случае прохождения результат проверки передается далее,
+     * если нет, то передает сообщение об ошибке в $this->message
+     * и $this->res = false
+     */
+    public function required(string $message = 'Необходимо заполнить поле'): Validation
+    {
+        if (!$this->isRes()) return $this;
+
+        $this->setRes((mb_strlen($this->data) > 0) ? true : false);
 
         if (!$this->isRes()) {
             $this->setMessage($message);
@@ -218,79 +257,43 @@ class Validation
     /**
      * @param        $data
      * @param string $message
-     * @return $this
-     * Проверяет соответствуют ли данные максимальной длинне,
-     * в случае прохождения результат проверки передается далее,
-     * если нет, то передает сообщение об ошибке в $this->message
-     * и $this->res = false
-     */
-    public function maxLenght($data, $message = 'Указано слишком много символов')
-    {
-        if (!$this->res) return $this;
-        $this->res = (mb_strlen($this->data) < $data) ? true : false;
-        if (!$this->res) {
-            $this->message = $message;
-        }
-        return $this;
-    }
-
-    /**
-     * @param string $message
-     * @return $this
-     * Проверяет необходимость заполнения поля - не меннее 1 символа,
-     * в случае прохождения результат проверки передается далее,
-     * если нет, то передает сообщение об ошибке в $this->message
-     * и $this->res = false
-     */
-    public function required($message = 'Необходимо заполнить поле')
-    {
-        if (!$this->res) return $this;
-
-        $this->res = (mb_strlen($this->data) > 0) ? true : false;
-
-        if (!$this->res) {
-            $this->message = $message;
-        }
-
-        return $this;
-    }
-
-    /**
-     * @param        $data
-     * @param string $message
-     * @return $this
+     * @return Validation
      * Проверяет эквивалентность введенных данных
      * в случае прохождения результат проверки передается далее,
      * если нет, то передает сообщение об ошибке в $this->message
      * и $this->res = false
      */
-    public function equals($data, $message = 'Пароли не совпадают')
+    public function equals($data, string $message = 'Пароли не совпадают'): Validation
     {
-        if (!$this->res) return $this;
-        $this->res = ($data[0] == $data[1]) ? true : false;
+        if (!$this->isRes()) return $this;
 
-        if (!$this->res) {
-            $this->message = $message;
+        $this->setRes(($data[0] == $data[1]) ? true : false);
+
+        if (!$this->isRes()) {
+            $this->setMessage($message);
         }
+
         return $this;
     }
 
     /**
      * @param        $data
      * @param string $message
-     * @return $this
+     * @return Validation
      * Проверяет email на соответствие
      * в случае прохождения результат проверки передается далее,
      * если нет, то передает сообщение об ошибке в $this->message
      * и $this->res = false
      */
-    public function email($data, $message = 'Email указан неверно')
+    public function email($data, string $message = 'Email указан неверно'): Validation
     {
-        $this->data = filter_var($data, FILTER_VALIDATE_EMAIL);
-        if (!$this->data) {
-            $this->res     = false;
-            $this->message = $message;
+        $this->set(filter_var($data, FILTER_VALIDATE_EMAIL));
+
+        if (!$this->getData()) {
+            $this->setRes(false);
+            $this->setMessage($message);
         }
+
         return $this;
     }
 
@@ -310,7 +313,7 @@ class Validation
         if (isset($data)) $captcha = $data;
 
         if (!$captcha) {
-            $this->res     = false;
+            $this->res = false;
             $this->message = $message;
             return $this;
         }
@@ -318,7 +321,7 @@ class Validation
         $response = json_decode(file_get_contents("https://www.google.com/recaptcha/api/siteverify?secret=" . $this->captchaSecret . "&response=" . $captcha . "&remoteip=" . $_SERVER['REMOTE_ADDR']), true);
 
         if ($response['success'] == false) {
-            $this->res     = false;
+            $this->res = false;
             $this->message = $message;
         } else {
             $this->data = $response['success'];
@@ -338,8 +341,8 @@ class Validation
     public function csrf($message = 'csrf')
     {
         if (!in_array($this->data, $_SESSION['csrf_token'])) {
-            $this->data    = $_SESSION['csrf_token'][0];
-            $this->res     = false;
+            $this->data = $_SESSION['csrf_token'][0];
+            $this->res = false;
             $this->message = $message;
         } else {
             $_POST['csrf'] = $this->data;
