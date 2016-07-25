@@ -259,7 +259,7 @@ class ValidationTest extends PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
-        $this->v = new \Minerva\Validation();
+        $this->v = new \Rudra\Validation();
     }
 
     protected function tearDown()
