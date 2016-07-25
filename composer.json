@@ -1,6 +1,6 @@
 {
-    "name"        : "minerva/validation",
-    "description" : "The Minerva framework",
+    "name"        : "rudra/validation",
+    "description" : "The Rudra framework",
     "version"     : "1.0.0-dev",
     "type"        : "library",
     "keywords"    : [
@@ -28,7 +28,7 @@
     },
     "autoload"    : {
         "psr-4": {
-            "Minerva\\": "src/"
+            "Rudra\\": "src/"
         }
     }
 }
