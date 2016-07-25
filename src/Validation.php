@@ -1,6 +1,6 @@
 <?php declare(strict_types = 1);
 
-namespace Minerva;
+namespace Rudra;
 
     /**
      * Date: 03.02.16
