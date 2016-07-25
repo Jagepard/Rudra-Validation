@@ -1,10 +1,10 @@
 {
-    "name"        : "lingam/validation",
-    "description" : "The Lingam framework",
+    "name"        : "minerva/validation",
+    "description" : "The Minerva framework",
     "version"     : "1.0.0-dev",
     "type"        : "library",
     "keywords"    : [
-        "lingam",
+        "minerva",
         "validation"
     ],
     "license"     : "MIT",
@@ -28,7 +28,7 @@
     },
     "autoload"    : {
         "psr-4": {
-            "Lingam\\": "src/"
+            "Minerva\\": "src/"
         }
     }
 }
