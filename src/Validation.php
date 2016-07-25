@@ -318,7 +318,9 @@ class Validation
             return $this;
         }
 
-        $response = json_decode(file_get_contents("https://www.google.com/recaptcha/api/siteverify?secret=" . $this->captchaSecret . "&response=" . $captcha . "&remoteip=" . $_SERVER['REMOTE_ADDR']), true);
+        $remoteAddr = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '127.0.0.1';
+
+        $response = json_decode(file_get_contents("https://www.google.com/recaptcha/api/siteverify?secret=" . $this->captchaSecret . "&response=" . $captcha . "&remoteip=" . $remoteAddr), true);
 
         if ($response['success'] == false) {
             $this->res = false;
