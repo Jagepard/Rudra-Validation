@@ -129,7 +129,7 @@ class Validation
      * Возвращает обработанные и проверенные данные
      * исключая при этом элементы массива $exludedKeys
      */
-    public function get(array $data, array $exludedKeys)
+    public function get(array $data, array $exludedKeys = [])
     {
         foreach ($data as $k => $v) {
             $res[$k] = $v[0];
@@ -377,7 +377,7 @@ class Validation
     /**
      * @return string
      */
-    public function getMessage(): string
+    public function getMessage()
     {
         return $this->message;
     }
