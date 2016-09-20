@@ -1,22 +1,25 @@
-<?php declare(strict_types = 1);
+<?php
+
+/**
+ * Date: 03.02.16
+ * Time: 18:13
+ * 
+ * @author    : Korotkov Danila <dankorot@gmail.com>
+ * @copyright Copyright (c) 2016, Korotkov Danila
+ * @license   http://www.gnu.org/licenses/gpl.html GNU GPLv3.0
+ */
+declare(strict_types = 1);
 
 namespace Rudra;
 
-    /**
-     * Date: 03.02.16
-     * Time: 18:13
-     * @author    : Korotkov Danila <dankorot@gmail.com>
-     * @copyright Copyright (c) 2016, Korotkov Danila
-     * @license   http://www.gnu.org/licenses/gpl.html GNU GPLv3.0
-     */
-
 /**
  * Class Validation
- * @package Core
+ * @package Rudra
  * Класс валидации данных
  */
 class Validation
 {
+
     /**
      * @var string
      */
@@ -34,6 +37,7 @@ class Validation
      * не прошли проверку
      */
     protected $message = null;
+
     /**
      * @var bool
      * Результат проверки
@@ -94,7 +98,6 @@ class Validation
     {
         if ($this->isRes()) {
             return [$this->getData(), null];
-
         } else {
 
             $result = [false, $this->getMessage()];
@@ -104,7 +107,6 @@ class Validation
             return $result;
         }
     }
-
 
     /**
      * @param $data
@@ -141,7 +143,7 @@ class Validation
             }
         }
 
-        return isset($res) ? $res : [];;
+        return isset($res) ? $res : [];
     }
 
     /**
@@ -178,7 +180,9 @@ class Validation
      */
     public function integer(string $message = 'Необходимо указать число'): Validation
     {
-        if (!$this->isRes()) return $this;
+        if (!$this->isRes()) {
+            return $this;
+        }
 
         $this->setRes((is_numeric($this->getData())) ? true : false);
 
@@ -200,8 +204,10 @@ class Validation
      */
     public function minLenght($data, string $message = 'Указано слишком мало символов'): Validation
     {
-        if (!$this->isRes()) return $this;
-
+        if (!$this->isRes()) {
+            return $this;
+        }
+        
         $this->setRes((mb_strlen($this->getData()) > $data) ? true : false);
 
         if (!$this->isRes()) {
@@ -222,8 +228,10 @@ class Validation
      */
     public function maxLenght($data, string $message = 'Указано слишком много символов'): Validation
     {
-        if (!$this->isRes()) return $this;
-
+        if (!$this->isRes()) {
+            return $this;
+        }
+        
         $this->setRes((mb_strlen($this->getData()) < $data) ? true : false);
 
         if (!$this->isRes()) {
@@ -243,8 +251,10 @@ class Validation
      */
     public function required(string $message = 'Необходимо заполнить поле'): Validation
     {
-        if (!$this->isRes()) return $this;
-
+        if (!$this->isRes()) {
+            return $this;
+        }
+        
         $this->setRes((mb_strlen($this->data) > 0) ? true : false);
 
         if (!$this->isRes()) {
@@ -265,8 +275,10 @@ class Validation
      */
     public function equals($data, string $message = 'Пароли не совпадают'): Validation
     {
-        if (!$this->isRes()) return $this;
-
+        if (!$this->isRes()) {
+            return $this;
+        }
+        
         $this->setRes(($data[0] == $data[1]) ? true : false);
 
         if (!$this->isRes()) {
@@ -310,10 +322,12 @@ class Validation
     {
         $captcha = false;
 
-        if (isset($data)) $captcha = $data;
-
+        if (isset($data)) {
+            $captcha = $data;
+        }
+        
         if (!$captcha) {
-            $this->res = false;
+            $this->res     = false;
             $this->message = $message;
             return $this;
         }
@@ -323,7 +337,7 @@ class Validation
         $response = json_decode(file_get_contents("https://www.google.com/recaptcha/api/siteverify?secret=" . $this->captchaSecret . "&response=" . $captcha . "&remoteip=" . $remoteAddr), true);
 
         if ($response['success'] == false) {
-            $this->res = false;
+            $this->res     = false;
             $this->message = $message;
         } else {
             $this->data = $response['success'];
@@ -343,8 +357,8 @@ class Validation
     public function csrf($message = 'csrf')
     {
         if (!in_array($this->data, $_SESSION['csrf_token'])) {
-            $this->data = $_SESSION['csrf_token'][0];
-            $this->res = false;
+            $this->data    = $_SESSION['csrf_token'][0];
+            $this->res     = false;
             $this->message = $message;
         } else {
             $_POST['csrf'] = $this->data;
@@ -386,4 +400,5 @@ class Validation
     {
         $this->message = $message;
     }
+
 }
