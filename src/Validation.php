@@ -3,7 +3,7 @@
 /**
  * Date: 03.02.16
  * Time: 18:13
- * 
+ *
  * @author    : Korotkov Danila <dankorot@gmail.com>
  * @copyright Copyright (c) 2016, Korotkov Danila
  * @license   http://www.gnu.org/licenses/gpl.html GNU GPLv3.0
@@ -74,6 +74,18 @@ class Validation
     public function sanitize($data, $allowableTags = null): Validation
     {
         $this->data = strip_tags(trim($data), $allowableTags);
+
+        return $this;
+    }
+
+    /**
+     * @param $data
+     *
+     * @return \Rudra\Validation
+     */
+    public function raw($data): Validation
+    {
+        $this->data = $data;
 
         return $this;
     }
@@ -207,7 +219,7 @@ class Validation
         if (!$this->isRes()) {
             return $this;
         }
-        
+
         $this->setRes((mb_strlen($this->getData()) > $data) ? true : false);
 
         if (!$this->isRes()) {
@@ -231,7 +243,7 @@ class Validation
         if (!$this->isRes()) {
             return $this;
         }
-        
+
         $this->setRes((mb_strlen($this->getData()) < $data) ? true : false);
 
         if (!$this->isRes()) {
@@ -254,7 +266,7 @@ class Validation
         if (!$this->isRes()) {
             return $this;
         }
-        
+
         $this->setRes((mb_strlen($this->data) > 0) ? true : false);
 
         if (!$this->isRes()) {
@@ -278,7 +290,7 @@ class Validation
         if (!$this->isRes()) {
             return $this;
         }
-        
+
         $this->setRes(($data[0] == $data[1]) ? true : false);
 
         if (!$this->isRes()) {
@@ -325,7 +337,7 @@ class Validation
         if (isset($data)) {
             $captcha = $data;
         }
-        
+
         if (!$captcha) {
             $this->res     = false;
             $this->message = $message;
