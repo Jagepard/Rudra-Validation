@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 /**
  * Date: 03.02.16
  * Time: 18:13
@@ -8,7 +10,6 @@
  * @copyright Copyright (c) 2016, Korotkov Danila
  * @license   http://www.gnu.org/licenses/gpl.html GNU GPLv3.0
  */
-declare(strict_types = 1);
 
 namespace Rudra;
 
