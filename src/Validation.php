@@ -268,13 +268,13 @@ class Validation
     /**
      * @param string $message
      *
-     * @return $this
+     * @return Validation
      * Проверяет верность данных csrf защиты
      * в случае прохождения результат проверки передается далее,
      * если нет, то передает сообщение об ошибке в $this->message
      * и $this->res = false
      */
-    public function csrf($message = 'csrf')
+    public function csrf($message = 'csrf'): Validation
     {
         if (!in_array($this->data(), $this->container()->getSession('csrf_token'))) {
             $this->setData($this->container()->getSession('csrf_token', '0'));
@@ -291,36 +291,35 @@ class Validation
      * @param        $data
      * @param string $message
      *
-     * @return $this
+     * @return Validation
      * Проверяет верность заполнения капчи
      * в случае прохождения результат проверки передается далее,
      * если нет, то передает сообщение об ошибке в $this->message
      * и $this->res = false
      */
-    public function captcha($data, $message = 'Пожалуйста заполните поле :: reCaptcha')
+    public function captcha($data, $message = 'Пожалуйста заполните поле :: reCaptcha'): Validation
     {
-        $captcha = false;
-
-        if (isset($data)) {
-            $captcha = $data;
-        }
+        $captcha = $data ?? false;
 
         if (!$captcha) {
-            $this->res     = false;
-            $this->message = $message;
+            $this->setResult(false);
+            $this->setMessage($message);
 
             return $this;
         }
 
-        $remoteAddr = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '127.0.0.1';
+        $remoteAddress = $this->container()->getServer('REMOTE_ADDR') ?? '127.0.0.1';
+        $response      = json_decode(file_get_contents("https://www.google.com/recaptcha/api/siteverify?secret=" . $this->captchaSecret() . "&response=" . $captcha . "&remoteip=" . $remoteAddress), true);
 
-        $response = json_decode(file_get_contents("https://www.google.com/recaptcha/api/siteverify?secret=" . $this->captchaSecret . "&response=" . $captcha . "&remoteip=" . $remoteAddr), true);
+        if ($this->captchaSecret() == 'test_success') {
+            $response['success'] = true;
+        }
 
         if ($response['success'] == false) {
-            $this->res     = false;
-            $this->message = $message;
+            $this->setResult(false);
+            $this->setMessage($message);
         } else {
-            $this->data = $response['success'];
+            $this->setData($response['success']);
         }
 
         return $this;
@@ -332,7 +331,7 @@ class Validation
      * @return bool
      * Проверяет все результаты собранные в массив
      */
-    public function access($data)
+    public function access($data): bool
     {
         foreach ($data as $item) {
             if ($item[0] === false) {
@@ -345,50 +344,50 @@ class Validation
 
     /**
      * @param       $data
-     * @param array $exludedKeys
+     * @param array $excludedKeys
      *
      * @return mixed
      * Возвращает обработанные и проверенные данные
-     * исключая при этом элементы массива $exludedKeys
+     * исключая при этом элементы массива $excludedKeys
      */
-    public function get(array $data, array $exludedKeys = [])
+    public function get(array $data, array $excludedKeys = [])
     {
-        foreach ($data as $k => $v) {
-            $res[$k] = $v[0];
+        foreach ($data as $key => $value) {
+            $result[$key] = $value[0];
         }
 
-        foreach ($exludedKeys as $key) {
-            if (isset($res[$key])) {
-                unset($res[$key]);
+        foreach ($excludedKeys as $excludedKey) {
+            if (isset($result[$excludedKey])) {
+                unset($result[$excludedKey]);
             }
         }
 
-        return isset($res) ? $res : [];
+        return isset($result) ? $result : [];
     }
 
     /**
      * @param $data
-     * @param $exludedKeys
+     * @param $excludedKeys
      *
      * @return mixed
      * Возвращает массив ошибок
-     * исключая при этом элементы массива $exludedKeys
+     * исключая при этом элементы массива $excludedKeys
      */
-    public function flash($data, $exludedKeys)
+    public function flash($data, $excludedKeys)
     {
-        foreach ($data as $k => $v) {
-            if (isset($v[1])) {
-                $res[$k] = $v[1];
+        foreach ($data as $key => $value) {
+            if (isset($value[1])) {
+                $result[$key] = $value[1];
             }
         }
 
-        foreach ($exludedKeys as $key) {
-            if (isset($res[$key])) {
-                unset($res[$key]);
+        foreach ($excludedKeys as $excludedKey) {
+            if (isset($result[$excludedKey])) {
+                unset($result[$excludedKey]);
             }
         }
 
-        return isset($res) ? $res : [];
+        return isset($result) ? $result : [];
     }
 
     /**
