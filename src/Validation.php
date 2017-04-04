@@ -393,7 +393,7 @@ class Validation
     /**
      * @return bool
      */
-    public function isResult(): bool
+    protected function isResult(): bool
     {
         return $this->result;
     }
@@ -401,7 +401,7 @@ class Validation
     /**
      * @param bool $result
      */
-    public function setResult(bool $result)
+    protected function setResult(bool $result)
     {
         $this->result = $result;
     }
@@ -409,7 +409,7 @@ class Validation
     /**
      * @return string
      */
-    public function data()
+    protected function data()
     {
         return $this->data;
     }
@@ -417,7 +417,7 @@ class Validation
     /**
      * @param $data
      */
-    public function setData($data)
+    protected function setData($data)
     {
         $this->data = $data;
     }
@@ -425,7 +425,7 @@ class Validation
     /**
      * @return string
      */
-    public function message()
+    protected function message()
     {
         return $this->message;
     }
@@ -433,7 +433,7 @@ class Validation
     /**
      * @param $message
      */
-    public function setMessage($message): void
+    protected function setMessage($message): void
     {
         $this->message = $message;
     }
@@ -441,7 +441,7 @@ class Validation
     /**
      * @return string
      */
-    public function captchaSecret(): string
+    protected function captchaSecret(): string
     {
         return $this->captchaSecret;
     }
@@ -449,7 +449,7 @@ class Validation
     /**
      * @return IContainer
      */
-    public function container(): IContainer
+    protected function container(): IContainer
     {
         return $this->container;
     }
