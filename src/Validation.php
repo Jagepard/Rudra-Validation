@@ -18,7 +18,7 @@ namespace Rudra;
  * @package Rudra
  *          Класс валидации данных
  */
-class Validation
+class Validation implements IValidation
 {
 
     /**
