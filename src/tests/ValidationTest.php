@@ -37,8 +37,8 @@ class ValidationTest extends PHPUnit_Framework_TestCase
     protected function setUp(): void
     {
         $_SERVER['REMOTE_ADDR'] = '192.168.0.1';
-        $this->container  = Container::app();
-        $this->validation = new Validation($this->container, '123');
+        $this->container        = Container::app();
+        $this->validation       = new Validation($this->container, '123');
     }
 
     public function testSet(): void
@@ -227,6 +227,55 @@ class ValidationTest extends PHPUnit_Framework_TestCase
 
         $this->assertTrue($data[0]);
         $this->assertNull($data[1]);
+    }
+
+    public function testAccess(): void
+    {
+        $validation = [
+            'required'  => $this->validation()->set('')->required()->run(),
+            'integer'   => $this->validation()->set('')->required()->integer()->run(),
+            'minLength' => $this->validation()->set('')->required()->minLength(5)->run(),
+            'maxLength' => $this->validation()->set('')->required()->maxLength(5)->run()
+        ];
+
+        $this->assertFalse($this->validation()->access($validation));
+
+        $validation = [
+            'required'  => $this->validation()->set('123')->required()->run(),
+            'integer'   => $this->validation()->set('123')->required()->integer()->run(),
+            'minLength' => $this->validation()->set('12345')->required()->minLength(5)->run(),
+            'maxLength' => $this->validation()->set('12345')->required()->maxLength(5)->run()
+        ];
+
+        $this->assertTrue($this->validation()->access($validation));
+    }
+
+    public function testGet(): void
+    {
+        $validation = [
+            'required'  => $this->validation()->set('123')->required()->run(),
+            'integer'   => $this->validation()->set('123')->required()->integer()->run(),
+            'minLength' => $this->validation()->set('12345')->required()->minLength(5)->run(),
+            'maxLength' => $this->validation()->set('12345')->required()->maxLength(5)->run()
+        ];
+
+        $validated = $this->validation()->get($validation, ['required']);
+
+        $this->assertCount(3, $validated);
+    }
+
+    public function testFlash(): void
+    {
+        $validation = [
+            'required'  => $this->validation()->set('')->required()->run(),
+            'integer'   => $this->validation()->set('')->required()->integer()->run(),
+            'minLength' => $this->validation()->set('')->required()->minLength(5)->run(),
+            'maxLength' => $this->validation()->set('')->required()->maxLength(5)->run()
+        ];
+
+        $flash = $this->validation()->flash($validation, ['required']);
+
+        $this->assertCount(3, $flash);
     }
 
     /**
