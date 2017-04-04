@@ -14,8 +14,9 @@ namespace Rudra;
 
 /**
  * Class Validation
+ *
  * @package Rudra
- * Класс валидации данных
+ *          Класс валидации данных
  */
 class Validation
 {
@@ -23,10 +24,10 @@ class Validation
     /**
      * @var string
      */
-    public $captchaSecret;
+    protected $captchaSecret;
 
     /**
-     * @var array
+     * @var string
      * Для данных проходящих валидацию
      */
     protected $data;
@@ -42,38 +43,285 @@ class Validation
      * @var bool
      * Результат проверки
      */
-    protected $res = true;
+    protected $result = true;
+
+    /**
+     * @var IContainer
+     */
+    protected $container;
 
     /**
      * Validation constructor.
-     * @param $captchaSecret
+     *
+     * @param IContainer $container
+     * @param null       $captchaSecret
      */
-    public function __construct($captchaSecret = null)
+    public function __construct(IContainer $container, $captchaSecret = null)
     {
+        $this->container     = $container;
         $this->captchaSecret = $captchaSecret;
     }
 
     /**
+     * @return array
+     * Собирает результат работы методов класса
+     */
+    public function run(): array
+    {
+        if ($this->isResult()) {
+            return [$this->data(), null];
+        }
+
+        $result = [false, $this->message()];
+
+        $this->setMessage(null);
+        $this->setResult(true);
+
+        return $result;
+    }
+
+    /**
      * @param $data
+     *
      * @return Validation
      * Устанавливаем данные без обработки
      */
     public function set($data): Validation
     {
-        $this->data = $data;
+        $this->setData($data);
 
         return $this;
     }
 
     /**
-     * @param      $data
-     * @param null $allowableTags
+     * @param string $data
+     * @param null   $allowableTags
+     *
      * @return Validation
      * Очищает входящие параметры от ненужных данных
      */
-    public function sanitize($data, $allowableTags = null): Validation
+    public function sanitize(string $data, $allowableTags = null): Validation
     {
-        $this->data = strip_tags(trim($data), $allowableTags);
+        $this->setData(strip_tags(trim($data), $allowableTags));
+
+        return $this;
+    }
+
+    /**
+     * @param string|null $salt
+     *
+     * @return Validation
+     */
+    public function hash(string $salt = null): Validation
+    {
+        $this->setData(substr(crypt($this->data(), '$6$rounds=' . $salt), 10));
+
+        return $this;
+    }
+
+    /**
+     * @param string $message
+     *
+     * @return Validation
+     * Проверяет необходимость заполнения поля - не меннее 1 символа,
+     * в случае прохождения результат проверки передается далее,
+     * если нет, то передает сообщение об ошибке в $this->message
+     * и $this->res = false
+     */
+    public function required(string $message = 'Необходимо заполнить поле'): Validation
+    {
+        if (!$this->isResult()) {
+            return $this;
+        }
+
+        $this->setResult((mb_strlen($this->data) > 0) ? true : false);
+
+        if (!$this->isResult()) {
+            $this->setMessage($message);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param string $message
+     *
+     * @return Validation
+     * Проверяет являются ли данные числом,
+     * в случае прохождения результат проверки передается далее,
+     * если нет, то передает сообщение об ошибке в $this->message
+     * и $this->res = false
+     */
+    public function integer(string $message = 'Необходимо указать число'): Validation
+    {
+        if (!$this->isResult()) {
+            return $this;
+        }
+
+        $this->setResult((is_numeric($this->data())) ? true : false);
+
+        if (!$this->isResult()) {
+            $this->setMessage($message);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param        $data
+     * @param string $message
+     *
+     * @return Validation
+     * Проверяет соответствуют ли данные минимальной длинне,
+     * в случае прохождения результат проверки передается далее,
+     * если нет, то передает сообщение об ошибке в $this->message
+     * и $this->res = false
+     */
+    public function minLength($data, string $message = 'Указано слишком мало символов'): Validation
+    {
+        if (!$this->isResult()) {
+            return $this;
+        }
+
+        $this->setResult((mb_strlen($this->data()) >= $data) ? true : false);
+
+        if (!$this->isResult()) {
+            $this->setMessage($message);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param        $data
+     * @param string $message
+     *
+     * @return Validation
+     * Проверяет соответствуют ли данные максимальной длинне,
+     * в случае прохождения результат проверки передается далее,
+     * если нет, то передает сообщение об ошибке в $this->message
+     * и $this->res = false
+     */
+    public function maxLength($data, string $message = 'Указано слишком много символов'): Validation
+    {
+        if (!$this->isResult()) {
+            return $this;
+        }
+
+        $this->setResult((mb_strlen($this->data()) <= $data) ? true : false);
+
+        if (!$this->isResult()) {
+            $this->setMessage($message);
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * @param        $data
+     * @param string $message
+     *
+     * @return Validation
+     * Проверяет эквивалентность введенных данных
+     * в случае прохождения результат проверки передается далее,
+     * если нет, то передает сообщение об ошибке в $this->message
+     * и $this->res = false
+     */
+    public function equals($data, string $message = 'Пароли не совпадают'): Validation
+    {
+        if (!$this->isResult()) {
+            return $this;
+        }
+
+        $this->setResult(($this->data() == $data) ? true : false);
+
+        if (!$this->isResult()) {
+            $this->setMessage($message);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param        $data
+     * @param string $message
+     *
+     * @return Validation
+     * Проверяет email на соответствие
+     * в случае прохождения результат проверки передается далее,
+     * если нет, то передает сообщение об ошибке в $this->message
+     * и $this->res = false
+     */
+    public function email($data, string $message = 'Email указан неверно'): Validation
+    {
+        $this->set(filter_var($data, FILTER_VALIDATE_EMAIL));
+
+        if (!$this->data()) {
+            $this->setResult(false);
+            $this->setMessage($message);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param string $message
+     *
+     * @return $this
+     * Проверяет верность данных csrf защиты
+     * в случае прохождения результат проверки передается далее,
+     * если нет, то передает сообщение об ошибке в $this->message
+     * и $this->res = false
+     */
+    public function csrf($message = 'csrf')
+    {
+        if (!in_array($this->data(), $this->container()->getSession('csrf_token'))) {
+            $this->setData($this->container()->getSession('csrf_token', '0'));
+            $this->setResult(false);
+            $this->setMessage($message);
+        } else {
+            $_POST['csrf'] = $this->data();
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param        $data
+     * @param string $message
+     *
+     * @return $this
+     * Проверяет верность заполнения капчи
+     * в случае прохождения результат проверки передается далее,
+     * если нет, то передает сообщение об ошибке в $this->message
+     * и $this->res = false
+     */
+    public function captcha($data, $message = 'Пожалуйста заполните поле :: reCaptcha')
+    {
+        $captcha = false;
+
+        if (isset($data)) {
+            $captcha = $data;
+        }
+
+        if (!$captcha) {
+            $this->res     = false;
+            $this->message = $message;
+
+            return $this;
+        }
+
+        $remoteAddr = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '127.0.0.1';
+
+        $response = json_decode(file_get_contents("https://www.google.com/recaptcha/api/siteverify?secret=" . $this->captchaSecret . "&response=" . $captcha . "&remoteip=" . $remoteAddr), true);
+
+        if ($response['success'] == false) {
+            $this->res     = false;
+            $this->message = $message;
+        } else {
+            $this->data = $response['success'];
+        }
 
         return $this;
     }
@@ -81,47 +329,6 @@ class Validation
     /**
      * @param $data
      *
-     * @return \Rudra\Validation
-     */
-    public function raw($data): Validation
-    {
-        $this->data = $data;
-
-        return $this;
-    }
-
-    /**
-     * @param string $salt
-     * @param int $iterationCount
-     * @return Validation
-     */
-    public function hash(string $salt, int $iterationCount = 13): Validation
-    {
-        $this->data = substr(crypt($this->data . $salt, '$6$rounds=' . $iterationCount), 14);
-
-        return $this;
-    }
-
-    /**
-     * @return array
-     * Собирает результат работы методов класса
-     */
-    public function v(): array
-    {
-        if ($this->isRes()) {
-            return [$this->getData(), null];
-        } else {
-
-            $result = [false, $this->getMessage()];
-            $this->setMessage(null);
-            $this->setRes(true);
-
-            return $result;
-        }
-    }
-
-    /**
-     * @param $data
      * @return bool
      * Проверяет все результаты собранные в массив
      */
@@ -137,8 +344,9 @@ class Validation
     }
 
     /**
-     * @param $data
+     * @param       $data
      * @param array $exludedKeys
+     *
      * @return mixed
      * Возвращает обработанные и проверенные данные
      * исключая при этом элементы массива $exludedKeys
@@ -161,6 +369,7 @@ class Validation
     /**
      * @param $data
      * @param $exludedKeys
+     *
      * @return mixed
      * Возвращает массив ошибок
      * исключая при этом элементы массива $exludedKeys
@@ -183,234 +392,66 @@ class Validation
     }
 
     /**
-     * @param string $message
-     * @return Validation
-     * Проверяет являются ли данные числом,
-     * в случае прохождения результат проверки передается далее,
-     * если нет, то передает сообщение об ошибке в $this->message
-     * и $this->res = false
-     */
-    public function integer(string $message = 'Необходимо указать число'): Validation
-    {
-        if (!$this->isRes()) {
-            return $this;
-        }
-
-        $this->setRes((is_numeric($this->getData())) ? true : false);
-
-        if (!$this->isRes()) {
-            $this->setMessage($message);
-        }
-
-        return $this;
-    }
-
-    /**
-     * @param        $data
-     * @param string $message
-     * @return Validation
-     * Проверяет соответствуют ли данные минимальной длинне,
-     * в случае прохождения результат проверки передается далее,
-     * если нет, то передает сообщение об ошибке в $this->message
-     * и $this->res = false
-     */
-    public function minLenght($data, string $message = 'Указано слишком мало символов'): Validation
-    {
-        if (!$this->isRes()) {
-            return $this;
-        }
-
-        $this->setRes((mb_strlen($this->getData()) > $data) ? true : false);
-
-        if (!$this->isRes()) {
-            $this->setMessage($message);
-        }
-
-        return $this;
-    }
-
-    /**
-     * @param        $data
-     * @param string $message
-     * @return Validation
-     * Проверяет соответствуют ли данные максимальной длинне,
-     * в случае прохождения результат проверки передается далее,
-     * если нет, то передает сообщение об ошибке в $this->message
-     * и $this->res = false
-     */
-    public function maxLenght($data, string $message = 'Указано слишком много символов'): Validation
-    {
-        if (!$this->isRes()) {
-            return $this;
-        }
-
-        $this->setRes((mb_strlen($this->getData()) < $data) ? true : false);
-
-        if (!$this->isRes()) {
-            $this->setMessage($message);
-        }
-
-        return $this;
-    }
-
-    /**
-     * @param string $message
-     * @return Validation
-     * Проверяет необходимость заполнения поля - не меннее 1 символа,
-     * в случае прохождения результат проверки передается далее,
-     * если нет, то передает сообщение об ошибке в $this->message
-     * и $this->res = false
-     */
-    public function required(string $message = 'Необходимо заполнить поле'): Validation
-    {
-        if (!$this->isRes()) {
-            return $this;
-        }
-
-        $this->setRes((mb_strlen($this->data) > 0) ? true : false);
-
-        if (!$this->isRes()) {
-            $this->setMessage($message);
-        }
-
-        return $this;
-    }
-
-    /**
-     * @param        $data
-     * @param string $message
-     * @return Validation
-     * Проверяет эквивалентность введенных данных
-     * в случае прохождения результат проверки передается далее,
-     * если нет, то передает сообщение об ошибке в $this->message
-     * и $this->res = false
-     */
-    public function equals($data, string $message = 'Пароли не совпадают'): Validation
-    {
-        if (!$this->isRes()) {
-            return $this;
-        }
-
-        $this->setRes(($data[0] == $data[1]) ? true : false);
-
-        if (!$this->isRes()) {
-            $this->setMessage($message);
-        }
-
-        return $this;
-    }
-
-    /**
-     * @param        $data
-     * @param string $message
-     * @return Validation
-     * Проверяет email на соответствие
-     * в случае прохождения результат проверки передается далее,
-     * если нет, то передает сообщение об ошибке в $this->message
-     * и $this->res = false
-     */
-    public function email($data, string $message = 'Email указан неверно'): Validation
-    {
-        $this->set(filter_var($data, FILTER_VALIDATE_EMAIL));
-
-        if (!$this->getData()) {
-            $this->setRes(false);
-            $this->setMessage($message);
-        }
-
-        return $this;
-    }
-
-    /**
-     * @param        $data
-     * @param string $message
-     * @return $this
-     * Проверяет верность заполнения капчи
-     * в случае прохождения результат проверки передается далее,
-     * если нет, то передает сообщение об ошибке в $this->message
-     * и $this->res = false
-     */
-    public function captcha($data, $message = 'Пожалуйста заполните поле :: reCaptcha')
-    {
-        $captcha = false;
-
-        if (isset($data)) {
-            $captcha = $data;
-        }
-
-        if (!$captcha) {
-            $this->res     = false;
-            $this->message = $message;
-            return $this;
-        }
-
-        $remoteAddr = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '127.0.0.1';
-
-        $response = json_decode(file_get_contents("https://www.google.com/recaptcha/api/siteverify?secret=" . $this->captchaSecret . "&response=" . $captcha . "&remoteip=" . $remoteAddr), true);
-
-        if ($response['success'] == false) {
-            $this->res     = false;
-            $this->message = $message;
-        } else {
-            $this->data = $response['success'];
-        }
-
-        return $this;
-    }
-
-    /**
-     * @param string $message
-     * @return $this
-     * Проверяет верность данных csrf защиты
-     * в случае прохождения результат проверки передается далее,
-     * если нет, то передает сообщение об ошибке в $this->message
-     * и $this->res = false
-     */
-    public function csrf($message = 'csrf')
-    {
-        if (!in_array($this->data, $_SESSION['csrf_token'])) {
-            $this->data    = $_SESSION['csrf_token'][0];
-            $this->res     = false;
-            $this->message = $message;
-        } else {
-            $_POST['csrf'] = $this->data;
-        }
-
-        return $this;
-    }
-
-    /**
      * @return bool
      */
-    public function isRes(): bool
+    public function isResult(): bool
     {
-        return $this->res;
+        return $this->result;
     }
 
     /**
-     * @param bool $res
+     * @param bool $result
      */
-    public function setRes(bool $res)
+    public function setResult(bool $result)
     {
-        $this->res = $res;
-    }
-
-    public function getData()
-    {
-        return $this->data;
+        $this->result = $result;
     }
 
     /**
      * @return string
      */
-    public function getMessage()
+    public function data()
+    {
+        return $this->data;
+    }
+
+    /**
+     * @param $data
+     */
+    public function setData($data)
+    {
+        $this->data = $data;
+    }
+
+    /**
+     * @return string
+     */
+    public function message()
     {
         return $this->message;
     }
 
-    public function setMessage($message)
+    /**
+     * @param $message
+     */
+    public function setMessage($message): void
     {
         $this->message = $message;
     }
 
+    /**
+     * @return string
+     */
+    public function captchaSecret(): string
+    {
+        return $this->captchaSecret;
+    }
+
+    /**
+     * @return IContainer
+     */
+    public function container(): IContainer
+    {
+        return $this->container;
+    }
 }
