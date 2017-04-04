@@ -36,8 +36,9 @@ class ValidationTest extends PHPUnit_Framework_TestCase
 
     protected function setUp(): void
     {
+        $_SERVER['REMOTE_ADDR'] = '192.168.0.1';
         $this->container  = Container::app();
-        $this->validation = new Validation($this->container);
+        $this->validation = new Validation($this->container, '123');
     }
 
     public function testSet(): void
@@ -209,6 +210,25 @@ class ValidationTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('csrf', $data[1]);
     }
 
+    public function testCapcha(): void
+    {
+        $data = $this->validation()->captcha(null)->run();
+
+        $this->assertFalse($data[0]);
+        $this->assertEquals('Пожалуйста заполните поле :: reCaptcha', $data[1]);
+
+        $data = $this->validation()->captcha('123')->run();
+
+        $this->assertFalse($data[0]);
+        $this->assertEquals('Пожалуйста заполните поле :: reCaptcha', $data[1]);
+
+        $this->setValidation(new Validation($this->container(), 'test_success'));
+        $data = $this->validation()->captcha('test_success')->run();
+
+        $this->assertTrue($data[0]);
+        $this->assertNull($data[1]);
+    }
+
     /**
      * @return Validation
      */
@@ -223,5 +243,13 @@ class ValidationTest extends PHPUnit_Framework_TestCase
     public function container(): IContainer
     {
         return $this->container;
+    }
+
+    /**
+     * @param Validation $validation
+     */
+    public function setValidation(Validation $validation): void
+    {
+        $this->validation = $validation;
     }
 }
