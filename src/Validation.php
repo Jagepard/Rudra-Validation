@@ -378,6 +378,8 @@ class Validation implements IValidation
      */
     public function flash($data, $excludedKeys)
     {
+        $result = [];
+
         foreach ($data as $key => $value) {
             if (isset($value[1])) {
                 $result[$key] = $value[1];
