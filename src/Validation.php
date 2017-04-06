@@ -353,6 +353,8 @@ class Validation implements IValidation
      */
     public function get(array $data, array $excludedKeys = [])
     {
+        $result = [];
+
         foreach ($data as $key => $value) {
             $result[$key] = $value[0];
         }
