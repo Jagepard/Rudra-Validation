@@ -29,6 +29,7 @@ interface ValidationInterface
      * Устанавливаем данные без обработки
      */
     public function set($data): ValidationInterface;
+
     /**
      * @param string $data
      * @param null   $allowableTags
