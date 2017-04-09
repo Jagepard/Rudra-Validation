@@ -6,5 +6,7 @@
 [![Latest Stable Version](https://poser.pugx.org/rudra/validation/v/stable)](https://packagist.org/packages/rudra/validation)
 [![Total Downloads](https://poser.pugx.org/rudra/validation/downloads)](https://packagist.org/packages/rudra/validation)
 [![License](https://poser.pugx.org/rudra/validation/license)](https://packagist.org/packages/rudra/validation)
+
+[![SensioLabsInsight](https://insight.sensiolabs.com/projects/22d8f9c9-dbf4-4122-8c86-c0231b5b8c1a/big.png)](https://insight.sensiolabs.com/projects/22d8f9c9-dbf4-4122-8c86-c0231b5b8c1a)
 # Rudra-Validation
 Валидация
