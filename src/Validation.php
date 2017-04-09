@@ -19,7 +19,7 @@ namespace Rudra;
  * @package Rudra
  *          Класс валидации данных
  */
-class Validation implements IValidation
+class Validation implements ValidationInterface
 {
 
     /**
@@ -47,17 +47,17 @@ class Validation implements IValidation
     protected $result = true;
 
     /**
-     * @var IContainer
+     * @var ContainerInterface
      */
     protected $container;
 
     /**
      * Validation constructor.
      *
-     * @param IContainer $container
+     * @param ContainerInterface $container
      * @param null       $captchaSecret
      */
-    public function __construct(IContainer $container, $captchaSecret = null)
+    public function __construct(ContainerInterface $container, $captchaSecret = null)
     {
         $this->container     = $container;
         $this->captchaSecret = $captchaSecret;
@@ -84,10 +84,10 @@ class Validation implements IValidation
     /**
      * @param $data
      *
-     * @return Validation
+     * @return ValidationInterface
      * Устанавливаем данные без обработки
      */
-    public function set($data): Validation
+    public function set($data): ValidationInterface
     {
         $this->setData($data);
 
@@ -98,10 +98,10 @@ class Validation implements IValidation
      * @param string $data
      * @param null   $allowableTags
      *
-     * @return Validation
+     * @return ValidationInterface
      * Очищает входящие параметры от ненужных данных
      */
-    public function sanitize(string $data, $allowableTags = null): Validation
+    public function sanitize(string $data, $allowableTags = null): ValidationInterface
     {
         $this->setData(strip_tags(trim($data), $allowableTags));
 
@@ -111,9 +111,9 @@ class Validation implements IValidation
     /**
      * @param string|null $salt
      *
-     * @return Validation
+     * @return ValidationInterface
      */
-    public function hash(string $salt = null): Validation
+    public function hash(string $salt = null): ValidationInterface
     {
         $this->setData(substr(crypt($this->data(), '$6$rounds=' . $salt), 10));
 
@@ -123,13 +123,13 @@ class Validation implements IValidation
     /**
      * @param string $message
      *
-     * @return Validation
+     * @return ValidationInterface
      * Проверяет необходимость заполнения поля - не меннее 1 символа,
      * в случае прохождения результат проверки передается далее,
      * если нет, то передает сообщение об ошибке в $this->message
      * и $this->res = false
      */
-    public function required(string $message = 'Необходимо заполнить поле'): Validation
+    public function required(string $message = 'Необходимо заполнить поле'): ValidationInterface
     {
         if (!$this->isResult()) {
             return $this;
@@ -147,13 +147,13 @@ class Validation implements IValidation
     /**
      * @param string $message
      *
-     * @return Validation
+     * @return ValidationInterface
      * Проверяет являются ли данные числом,
      * в случае прохождения результат проверки передается далее,
      * если нет, то передает сообщение об ошибке в $this->message
      * и $this->res = false
      */
-    public function integer(string $message = 'Необходимо указать число'): Validation
+    public function integer(string $message = 'Необходимо указать число'): ValidationInterface
     {
         if (!$this->isResult()) {
             return $this;
@@ -172,13 +172,13 @@ class Validation implements IValidation
      * @param        $data
      * @param string $message
      *
-     * @return Validation
+     * @return ValidationInterface
      * Проверяет соответствуют ли данные минимальной длинне,
      * в случае прохождения результат проверки передается далее,
      * если нет, то передает сообщение об ошибке в $this->message
      * и $this->res = false
      */
-    public function minLength($data, string $message = 'Указано слишком мало символов'): Validation
+    public function minLength($data, string $message = 'Указано слишком мало символов'): ValidationInterface
     {
         if (!$this->isResult()) {
             return $this;
@@ -197,13 +197,13 @@ class Validation implements IValidation
      * @param        $data
      * @param string $message
      *
-     * @return Validation
+     * @return ValidationInterface
      * Проверяет соответствуют ли данные максимальной длинне,
      * в случае прохождения результат проверки передается далее,
      * если нет, то передает сообщение об ошибке в $this->message
      * и $this->res = false
      */
-    public function maxLength($data, string $message = 'Указано слишком много символов'): Validation
+    public function maxLength($data, string $message = 'Указано слишком много символов'): ValidationInterface
     {
         if (!$this->isResult()) {
             return $this;
@@ -223,13 +223,13 @@ class Validation implements IValidation
      * @param        $data
      * @param string $message
      *
-     * @return Validation
+     * @return ValidationInterface
      * Проверяет эквивалентность введенных данных
      * в случае прохождения результат проверки передается далее,
      * если нет, то передает сообщение об ошибке в $this->message
      * и $this->res = false
      */
-    public function equals($data, string $message = 'Пароли не совпадают'): Validation
+    public function equals($data, string $message = 'Пароли не совпадают'): ValidationInterface
     {
         if (!$this->isResult()) {
             return $this;
@@ -248,13 +248,13 @@ class Validation implements IValidation
      * @param        $data
      * @param string $message
      *
-     * @return Validation
+     * @return ValidationInterface
      * Проверяет email на соответствие
      * в случае прохождения результат проверки передается далее,
      * если нет, то передает сообщение об ошибке в $this->message
      * и $this->res = false
      */
-    public function email($data, string $message = 'Email указан неверно'): Validation
+    public function email($data, string $message = 'Email указан неверно'): ValidationInterface
     {
         $this->set(filter_var($data, FILTER_VALIDATE_EMAIL));
 
@@ -269,13 +269,13 @@ class Validation implements IValidation
     /**
      * @param string $message
      *
-     * @return Validation
+     * @return ValidationInterface
      * Проверяет верность данных csrf защиты
      * в случае прохождения результат проверки передается далее,
      * если нет, то передает сообщение об ошибке в $this->message
      * и $this->res = false
      */
-    public function csrf($message = 'csrf'): Validation
+    public function csrf($message = 'csrf'): ValidationInterface
     {
         if (!in_array($this->data(), $this->container()->getSession('csrf_token'))) {
             $this->setData($this->container()->getSession('csrf_token', '0'));
@@ -292,13 +292,13 @@ class Validation implements IValidation
      * @param        $data
      * @param string $message
      *
-     * @return Validation
+     * @return ValidationInterface
      * Проверяет верность заполнения капчи
      * в случае прохождения результат проверки передается далее,
      * если нет, то передает сообщение об ошибке в $this->message
      * и $this->res = false
      */
-    public function captcha($data, $message = 'Пожалуйста заполните поле :: reCaptcha'): Validation
+    public function captcha($data, $message = 'Пожалуйста заполните поле :: reCaptcha'): ValidationInterface
     {
         $captcha = $data ?? false;
 
@@ -452,9 +452,9 @@ class Validation implements IValidation
     }
 
     /**
-     * @return IContainer
+     * @return ContainerInterface
      */
-    protected function container(): IContainer
+    protected function container(): ContainerInterface
     {
         return $this->container;
     }

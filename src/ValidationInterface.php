@@ -14,7 +14,7 @@ declare(strict_types = 1);
 namespace Rudra;
 
 
-interface IValidation
+interface ValidationInterface
 {
     /**
      * @return array
@@ -25,119 +25,119 @@ interface IValidation
     /**
      * @param $data
      *
-     * @return Validation
+     * @return ValidationInterface
      * Устанавливаем данные без обработки
      */
-    public function set($data): Validation;
+    public function set($data): ValidationInterface;
     /**
      * @param string $data
      * @param null   $allowableTags
      *
-     * @return Validation
+     * @return ValidationInterface
      * Очищает входящие параметры от ненужных данных
      */
-    public function sanitize(string $data, $allowableTags = null): Validation;
+    public function sanitize(string $data, $allowableTags = null): ValidationInterface;
 
     /**
      * @param string|null $salt
      *
-     * @return Validation
+     * @return ValidationInterface
      */
-    public function hash(string $salt = null): Validation;
+    public function hash(string $salt = null): ValidationInterface;
 
     /**
      * @param string $message
      *
-     * @return Validation
+     * @return ValidationInterface
      * Проверяет необходимость заполнения поля - не меннее 1 символа,
      * в случае прохождения результат проверки передается далее,
      * если нет, то передает сообщение об ошибке в $this->message
      * и $this->res = false
      */
-    public function required(string $message = 'Необходимо заполнить поле'): Validation;
+    public function required(string $message = 'Необходимо заполнить поле'): ValidationInterface;
 
     /**
      * @param string $message
      *
-     * @return Validation
+     * @return ValidationInterface
      * Проверяет являются ли данные числом,
      * в случае прохождения результат проверки передается далее,
      * если нет, то передает сообщение об ошибке в $this->message
      * и $this->res = false
      */
-    public function integer(string $message = 'Необходимо указать число'): Validation;
+    public function integer(string $message = 'Необходимо указать число'): ValidationInterface;
 
     /**
      * @param        $data
      * @param string $message
      *
-     * @return Validation
+     * @return ValidationInterface
      * Проверяет соответствуют ли данные минимальной длинне,
      * в случае прохождения результат проверки передается далее,
      * если нет, то передает сообщение об ошибке в $this->message
      * и $this->res = false
      */
-    public function minLength($data, string $message = 'Указано слишком мало символов'): Validation;
+    public function minLength($data, string $message = 'Указано слишком мало символов'): ValidationInterface;
 
     /**
      * @param        $data
      * @param string $message
      *
-     * @return Validation
+     * @return ValidationInterface
      * Проверяет соответствуют ли данные максимальной длинне,
      * в случае прохождения результат проверки передается далее,
      * если нет, то передает сообщение об ошибке в $this->message
      * и $this->res = false
      */
-    public function maxLength($data, string $message = 'Указано слишком много символов'): Validation;
+    public function maxLength($data, string $message = 'Указано слишком много символов'): ValidationInterface;
 
 
     /**
      * @param        $data
      * @param string $message
      *
-     * @return Validation
+     * @return ValidationInterface
      * Проверяет эквивалентность введенных данных
      * в случае прохождения результат проверки передается далее,
      * если нет, то передает сообщение об ошибке в $this->message
      * и $this->res = false
      */
-    public function equals($data, string $message = 'Пароли не совпадают'): Validation;
+    public function equals($data, string $message = 'Пароли не совпадают'): ValidationInterface;
 
     /**
      * @param        $data
      * @param string $message
      *
-     * @return Validation
+     * @return ValidationInterface
      * Проверяет email на соответствие
      * в случае прохождения результат проверки передается далее,
      * если нет, то передает сообщение об ошибке в $this->message
      * и $this->res = false
      */
-    public function email($data, string $message = 'Email указан неверно'): Validation;
+    public function email($data, string $message = 'Email указан неверно'): ValidationInterface;
 
     /**
      * @param string $message
      *
-     * @return Validation
+     * @return ValidationInterface
      * Проверяет верность данных csrf защиты
      * в случае прохождения результат проверки передается далее,
      * если нет, то передает сообщение об ошибке в $this->message
      * и $this->res = false
      */
-    public function csrf($message = 'csrf'): Validation;
+    public function csrf($message = 'csrf'): ValidationInterface;
 
     /**
      * @param        $data
      * @param string $message
      *
-     * @return Validation
+     * @return ValidationInterface
      * Проверяет верность заполнения капчи
      * в случае прохождения результат проверки передается далее,
      * если нет, то передает сообщение об ошибке в $this->message
      * и $this->res = false
      */
-    public function captcha($data, $message = 'Пожалуйста заполните поле :: reCaptcha'): Validation;
+    public function captcha($data, $message = 'Пожалуйста заполните поле :: reCaptcha'): ValidationInterface;
 
     /**
      * @param $data

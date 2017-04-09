@@ -13,8 +13,9 @@ declare(strict_types = 1);
 
 
 use PHPUnit\Framework\TestCase as PHPUnit_Framework_TestCase;
+use Rudra\ValidationInterface;
 use Rudra\Validation;
-use Rudra\IContainer;
+use Rudra\ContainerInterface;
 use Rudra\Container;
 
 
@@ -25,12 +26,12 @@ class ValidationTest extends PHPUnit_Framework_TestCase
 {
 
     /**
-     * @var Validation
+     * @var ValidationInterface
      */
     protected $validation;
 
     /**
-     * @var IContainer
+     * @var ContainerInterface
      */
     protected $container;
 
@@ -279,25 +280,25 @@ class ValidationTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @return Validation
+     * @return ValidationInterface
      */
-    public function validation(): Validation
+    public function validation(): ValidationInterface
     {
         return $this->validation;
     }
 
     /**
-     * @return IContainer
+     * @return ContainerInterface
      */
-    public function container(): IContainer
+    public function container(): ContainerInterface
     {
         return $this->container;
     }
 
     /**
-     * @param Validation $validation
+     * @param ValidationInterface $validation
      */
-    public function setValidation(Validation $validation): void
+    public function setValidation(ValidationInterface $validation): void
     {
         $this->validation = $validation;
     }
