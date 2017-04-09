@@ -316,7 +316,7 @@ class Validation implements ValidationInterface
             $response['success'] = true;
         }
 
-        if ($response['success'] == false) {
+        if ($response['success'] === false) {
             $this->setResult(false);
             $this->setMessage($message);
         } else {
