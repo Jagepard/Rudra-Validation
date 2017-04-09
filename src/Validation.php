@@ -22,16 +22,12 @@ namespace Rudra;
 class Validation implements ValidationInterface
 {
 
+    use ValidationInputTrait, ValidationOutputTrait;
+
     /**
      * @var string
      */
     protected $captchaSecret;
-
-    /**
-     * @var string
-     * Для данных проходящих валидацию
-     */
-    protected $data;
 
     /**
      * @var null
@@ -79,45 +75,6 @@ class Validation implements ValidationInterface
         $this->setResult(true);
 
         return $result;
-    }
-
-    /**
-     * @param $data
-     *
-     * @return ValidationInterface
-     * Устанавливаем данные без обработки
-     */
-    public function set($data): ValidationInterface
-    {
-        $this->setData($data);
-
-        return $this;
-    }
-
-    /**
-     * @param string $data
-     * @param null   $allowableTags
-     *
-     * @return ValidationInterface
-     * Очищает входящие параметры от ненужных данных
-     */
-    public function sanitize(string $data, $allowableTags = null): ValidationInterface
-    {
-        $this->setData(strip_tags(trim($data), $allowableTags));
-
-        return $this;
-    }
-
-    /**
-     * @param string|null $salt
-     *
-     * @return ValidationInterface
-     */
-    public function hash(string $salt = null): ValidationInterface
-    {
-        $this->setData(substr(crypt($this->data(), '$6$rounds=' . $salt), 10));
-
-        return $this;
     }
 
     /**
@@ -327,75 +284,6 @@ class Validation implements ValidationInterface
     }
 
     /**
-     * @param $data
-     *
-     * @return bool
-     * Проверяет все результаты собранные в массив
-     */
-    public function access($data): bool
-    {
-        foreach ($data as $item) {
-            if ($item[0] === false) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    /**
-     * @param       $data
-     * @param array $excludedKeys
-     *
-     * @return mixed
-     * Возвращает обработанные и проверенные данные
-     * исключая при этом элементы массива $excludedKeys
-     */
-    public function get(array $data, array $excludedKeys = [])
-    {
-        $result = [];
-
-        foreach ($data as $key => $value) {
-            $result[$key] = $value[0];
-        }
-
-        foreach ($excludedKeys as $excludedKey) {
-            if (isset($result[$excludedKey])) {
-                unset($result[$excludedKey]);
-            }
-        }
-
-        return isset($result) ? $result : [];
-    }
-
-    /**
-     * @param $data
-     * @param $excludedKeys
-     *
-     * @return mixed
-     * Возвращает массив ошибок
-     * исключая при этом элементы массива $excludedKeys
-     */
-    public function flash($data, $excludedKeys)
-    {
-        $result = [];
-
-        foreach ($data as $key => $value) {
-            if (isset($value[1])) {
-                $result[$key] = $value[1];
-            }
-        }
-
-        foreach ($excludedKeys as $excludedKey) {
-            if (isset($result[$excludedKey])) {
-                unset($result[$excludedKey]);
-            }
-        }
-
-        return isset($result) ? $result : [];
-    }
-
-    /**
      * @return bool
      */
     protected function isResult(): bool
@@ -409,22 +297,6 @@ class Validation implements ValidationInterface
     protected function setResult(bool $result)
     {
         $this->result = $result;
-    }
-
-    /**
-     * @return string
-     */
-    protected function data()
-    {
-        return $this->data;
-    }
-
-    /**
-     * @param $data
-     */
-    protected function setData($data)
-    {
-        $this->data = $data;
     }
 
     /**
