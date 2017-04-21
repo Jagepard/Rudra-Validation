@@ -22,7 +22,9 @@ namespace Rudra;
 class Validation implements ValidationInterface
 {
 
-    use ValidationInputTrait, ValidationOutputTrait;
+    use ValidationInputTrait;
+    use ValidationOutputTrait;
+    use SetContainerTrait;
 
     /**
      * @var string
@@ -41,11 +43,6 @@ class Validation implements ValidationInterface
      * Результат проверки
      */
     protected $result = true;
-
-    /**
-     * @var ContainerInterface
-     */
-    protected $container;
 
     /**
      * Validation constructor.
@@ -321,13 +318,5 @@ class Validation implements ValidationInterface
     protected function captchaSecret(): string
     {
         return $this->captchaSecret;
-    }
-
-    /**
-     * @return ContainerInterface
-     */
-    protected function container(): ContainerInterface
-    {
-        return $this->container;
     }
 }
