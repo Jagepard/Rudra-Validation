@@ -4,7 +4,9 @@
     "type"        : "library",
     "keywords"    : [
         "rudra",
-        "validation"
+        "validation",
+        "validation-library",
+        "validator"
     ],
     "license"     : "MIT",
     "authors"     : [
