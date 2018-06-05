@@ -1,37 +1,36 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 /**
- * Date: 09.04.17
- * Time: 17:48
- *
  * @author    : Korotkov Danila <dankorot@gmail.com>
- * @copyright Copyright (c) 2016, Korotkov Danila
+ * @copyright Copyright (c) 2018, Korotkov Danila
  * @license   http://www.gnu.org/licenses/gpl.html GNU GPLv3.0
  */
 
-namespace Rudra;
+namespace Rudra\Traits;
+
+use Rudra\Interfaces\ValidationInterface;
 
 /**
- * Class ValidationInputTrait
- *
- * @package Rudra
+ * Trait ValidationInputTrait
+ * @package Rudra\Traits
  */
 trait ValidationInputTrait
 {
 
     /**
-     * @var string
      * Для данных проходящих валидацию
+     *
+     * @var string
      */
     protected $data;
 
     /**
-     * @param $data
-     *
-     * @return ValidationInterface
      * Устанавливаем данные без обработки
+     *
+     * @param $data
+     * @return ValidationInterface
      */
     public function set($data): ValidationInterface
     {
@@ -42,11 +41,11 @@ trait ValidationInputTrait
 
 
     /**
+     * Очищает входящие параметры от ненужных данных
+     *
      * @param string $data
      * @param null   $allowableTags
-     *
      * @return ValidationInterface
-     * Очищает входящие параметры от ненужных данных
      */
     public function sanitize(string $data, $allowableTags = null): ValidationInterface
     {
@@ -57,7 +56,6 @@ trait ValidationInputTrait
 
     /**
      * @param string|null $salt
-     *
      * @return ValidationInterface
      */
     public function hash(string $salt = null): ValidationInterface

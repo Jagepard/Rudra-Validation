@@ -1,54 +1,58 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 /**
- * Date: 03.02.16
- * Time: 18:13
- *
  * @author    : Korotkov Danila <dankorot@gmail.com>
- * @copyright Copyright (c) 2016, Korotkov Danila
+ * @copyright Copyright (c) 2018, Korotkov Danila
  * @license   http://www.gnu.org/licenses/gpl.html GNU GPLv3.0
  */
 
 namespace Rudra;
 
+use Rudra\Traits\ValidationInputTrait;
+use Rudra\Traits\ValidationOutputTrait;
+use Rudra\Interfaces\ContainerInterface;
+use Rudra\Interfaces\ValidationInterface;
+
 /**
- * Class Validation
+ * Класс валидации данных
  *
+ * Class Validation
  * @package Rudra
- *          Класс валидации данных
  */
 class Validation implements ValidationInterface
 {
 
     use ValidationInputTrait;
     use ValidationOutputTrait;
-    use SetContainerTrait;
 
     /**
+     * @var ContainerInterface
+     */
+    protected $container;
+        /**
      * @var string
      */
     protected $captchaSecret;
-
     /**
-     * @var null
      * Для сообщения об ошибке если данные
      * не прошли проверку
+     *
+     * @var null
      */
     protected $message = null;
-
     /**
-     * @var bool
      * Результат проверки
+     *
+     * @var bool
      */
     protected $result = true;
 
     /**
      * Validation constructor.
-     *
      * @param ContainerInterface $container
-     * @param null       $captchaSecret
+     * @param null               $captchaSecret
      */
     public function __construct(ContainerInterface $container, $captchaSecret = null)
     {
@@ -57,8 +61,9 @@ class Validation implements ValidationInterface
     }
 
     /**
-     * @return array
      * Собирает результат работы методов класса
+     *
+     * @return array
      */
     public function run(): array
     {
@@ -75,13 +80,13 @@ class Validation implements ValidationInterface
     }
 
     /**
-     * @param string $message
-     *
-     * @return ValidationInterface
      * Проверяет необходимость заполнения поля - не меннее 1 символа,
      * в случае прохождения результат проверки передается далее,
      * если нет, то передает сообщение об ошибке в $this->message
      * и $this->res = false
+     *
+     * @param string $message
+     * @return ValidationInterface
      */
     public function required(string $message = 'Необходимо заполнить поле'): ValidationInterface
     {
@@ -99,13 +104,13 @@ class Validation implements ValidationInterface
     }
 
     /**
-     * @param string $message
-     *
-     * @return ValidationInterface
      * Проверяет являются ли данные числом,
      * в случае прохождения результат проверки передается далее,
      * если нет, то передает сообщение об ошибке в $this->message
      * и $this->res = false
+     *
+     * @param string $message
+     * @return ValidationInterface
      */
     public function integer(string $message = 'Необходимо указать число'): ValidationInterface
     {
@@ -123,14 +128,14 @@ class Validation implements ValidationInterface
     }
 
     /**
-     * @param        $data
-     * @param string $message
-     *
-     * @return ValidationInterface
      * Проверяет соответствуют ли данные минимальной длинне,
      * в случае прохождения результат проверки передается далее,
      * если нет, то передает сообщение об ошибке в $this->message
      * и $this->res = false
+     *
+     * @param        $data
+     * @param string $message
+     * @return ValidationInterface
      */
     public function minLength($data, string $message = 'Указано слишком мало символов'): ValidationInterface
     {
@@ -148,14 +153,14 @@ class Validation implements ValidationInterface
     }
 
     /**
-     * @param        $data
-     * @param string $message
-     *
-     * @return ValidationInterface
      * Проверяет соответствуют ли данные максимальной длинне,
      * в случае прохождения результат проверки передается далее,
      * если нет, то передает сообщение об ошибке в $this->message
      * и $this->res = false
+     *
+     * @param        $data
+     * @param string $message
+     * @return ValidationInterface
      */
     public function maxLength($data, string $message = 'Указано слишком много символов'): ValidationInterface
     {
@@ -174,14 +179,14 @@ class Validation implements ValidationInterface
 
 
     /**
-     * @param        $data
-     * @param string $message
-     *
-     * @return ValidationInterface
      * Проверяет эквивалентность введенных данных
      * в случае прохождения результат проверки передается далее,
      * если нет, то передает сообщение об ошибке в $this->message
      * и $this->res = false
+     *
+     * @param        $data
+     * @param string $message
+     * @return ValidationInterface
      */
     public function equals($data, string $message = 'Пароли не совпадают'): ValidationInterface
     {
@@ -199,14 +204,14 @@ class Validation implements ValidationInterface
     }
 
     /**
-     * @param        $data
-     * @param string $message
-     *
-     * @return ValidationInterface
      * Проверяет email на соответствие
      * в случае прохождения результат проверки передается далее,
      * если нет, то передает сообщение об ошибке в $this->message
      * и $this->res = false
+     *
+     * @param        $data
+     * @param string $message
+     * @return ValidationInterface
      */
     public function email($data, string $message = 'Email указан неверно'): ValidationInterface
     {
@@ -221,18 +226,18 @@ class Validation implements ValidationInterface
     }
 
     /**
-     * @param string $message
-     *
-     * @return ValidationInterface
      * Проверяет верность данных csrf защиты
      * в случае прохождения результат проверки передается далее,
      * если нет, то передает сообщение об ошибке в $this->message
      * и $this->res = false
+     *
+     * @param string $message
+     * @return ValidationInterface
      */
     public function csrf($message = 'csrf'): ValidationInterface
     {
-        if (!in_array($this->data(), $this->container()->getSession('csrf_token'))) {
-            $this->setData($this->container()->getSession('csrf_token', '0'));
+        if (!in_array($this->data(), $this->container->getSession('csrf_token'))) {
+            $this->setData($this->container->getSession('csrf_token', '0'));
             $this->setResult(false);
             $this->setMessage($message);
         } else {
@@ -243,14 +248,14 @@ class Validation implements ValidationInterface
     }
 
     /**
-     * @param        $data
-     * @param string $message
-     *
-     * @return ValidationInterface
      * Проверяет верность заполнения капчи
      * в случае прохождения результат проверки передается далее,
      * если нет, то передает сообщение об ошибке в $this->message
      * и $this->res = false
+     *
+     * @param        $data
+     * @param string $message
+     * @return ValidationInterface
      */
     public function captcha($data, $message = 'Пожалуйста заполните поле :: reCaptcha'): ValidationInterface
     {
@@ -263,7 +268,7 @@ class Validation implements ValidationInterface
             return $this;
         }
 
-        $remoteAddress = $this->container()->getServer('REMOTE_ADDR') ?? '127.0.0.1';
+        $remoteAddress = $this->container->getServer('REMOTE_ADDR') ?? '127.0.0.1';
         $response      = json_decode(file_get_contents("https://www.google.com/recaptcha/api/siteverify?secret=" . $this->captchaSecret() . "&response=" . $captcha . "&remoteip=" . $remoteAddress), true);
 
         if ($this->captchaSecret() == 'test_success') {

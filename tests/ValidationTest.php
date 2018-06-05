@@ -1,23 +1,18 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 /**
- * Date: 21.07.16
- * Time: 17:53
- *
  * @author    : Korotkov Danila <dankorot@gmail.com>
- * @copyright Copyright (c) 2016, Korotkov Danila
+ * @copyright Copyright (c) 2018, Korotkov Danila
  * @license   http://www.gnu.org/licenses/gpl.html GNU GPLv3.0
  */
 
-
-use PHPUnit\Framework\TestCase as PHPUnit_Framework_TestCase;
-use Rudra\ValidationInterface;
-use Rudra\Validation;
-use Rudra\ContainerInterface;
 use Rudra\Container;
-
+use Rudra\Validation;
+use Rudra\Interfaces\ContainerInterface;
+use Rudra\Interfaces\ValidationInterface;
+use PHPUnit\Framework\TestCase as PHPUnit_Framework_TestCase;
 
 /**
  * Class ValidationTest
@@ -29,7 +24,6 @@ class ValidationTest extends PHPUnit_Framework_TestCase
      * @var ValidationInterface
      */
     protected $validation;
-
     /**
      * @var ContainerInterface
      */
