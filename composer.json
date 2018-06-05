@@ -1,6 +1,6 @@
 {
     "name"        : "rudra/validation",
-    "description" : "The Rudra framework",
+    "description" : "Rudra framework",
     "type"        : "library",
     "keywords"    : [
         "rudra",
