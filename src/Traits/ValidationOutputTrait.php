@@ -1,32 +1,27 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 /**
- * Date: 09.04.17
- * Time: 17:50
- *
  * @author    : Korotkov Danila <dankorot@gmail.com>
- * @copyright Copyright (c) 2016, Korotkov Danila
+ * @copyright Copyright (c) 2018, Korotkov Danila
  * @license   http://www.gnu.org/licenses/gpl.html GNU GPLv3.0
  */
 
-namespace Rudra;
-
+namespace Rudra\Traits;
 
 /**
- * Class ValidationOutputTrait
- *
- * @package Rudra
+ * Trait ValidationOutputTrait
+ * @package Rudra\Traits
  */
 trait ValidationOutputTrait
 {
 
     /**
-     * @param $data
-     *
-     * @return bool
      * Проверяет все результаты собранные в массив
+     *
+     * @param $data
+     * @return bool
      */
     public function access($data): bool
     {
@@ -40,12 +35,12 @@ trait ValidationOutputTrait
     }
 
     /**
-     * @param       $data
-     * @param array $excludedKeys
-     *
-     * @return mixed
      * Возвращает обработанные и проверенные данные
      * исключая при этом элементы массива $excludedKeys
+     *
+     * @param       $data
+     * @param array $excludedKeys
+     * @return mixed
      */
     public function get(array $data, array $excludedKeys = [])
     {
@@ -65,12 +60,12 @@ trait ValidationOutputTrait
     }
 
     /**
-     * @param $data
-     * @param $excludedKeys
-     *
-     * @return mixed
      * Возвращает массив ошибок
      * исключая при этом элементы массива $excludedKeys
+     *
+     * @param $data
+     * @param $excludedKeys
+     * @return mixed
      */
     public function flash($data, $excludedKeys)
     {
