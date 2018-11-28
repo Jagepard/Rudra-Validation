@@ -11,3 +11,5 @@
 
 # Rudra-Validation | [API](https://github.com/Jagepard/Rudra-Validation/blob/master/docs.md "Documentation API")
 Валидация
+
+![Rudra-Validation](https://github.com/Jagepard/Rudra-Validation/blob/master/UML.png)
