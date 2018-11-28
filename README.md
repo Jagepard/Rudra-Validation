@@ -9,5 +9,5 @@
 [![Total Downloads](https://poser.pugx.org/rudra/validation/downloads)](https://packagist.org/packages/rudra/validation)
 [![License: GPL-3.0-or-later](https://img.shields.io/badge/license-GPL--3.0--or--later-498e7f.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
-# Rudra-Validation
+# Rudra-Validation | [API](https://github.com/Jagepard/Rudra-Validation/blob/master/docs.md "Documentation API")
 Валидация
