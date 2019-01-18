@@ -165,9 +165,9 @@ class Validation implements ValidationInterface
         }
 
         $remoteAddress = $this->container->getServer('REMOTE_ADDR') ?? '127.0.0.1';
-        $response      = json_decode(file_get_contents("https://www.google.com/recaptcha/api/siteverify?secret=" . $this->captchaSecret() . "&response=" . $captcha . "&remoteip=" . $remoteAddress), true);
+        $response      = json_decode(file_get_contents("https://www.google.com/recaptcha/api/siteverify?secret=" . $this->captchaSecret . "&response=" . $captcha . "&remoteip=" . $remoteAddress), true);
 
-        if ($this->captchaSecret() == 'test_success') {
+        if ($this->captchaSecret == 'test_success') {
             $response['success'] = true;
         }
 
@@ -179,14 +179,6 @@ class Validation implements ValidationInterface
         }
 
         return $this;
-    }
-
-    /**
-     * @return string
-     */
-    protected function captchaSecret(): string
-    {
-        return $this->captchaSecret;
     }
 
     /**
