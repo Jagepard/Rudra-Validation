@@ -16,8 +16,6 @@ use Rudra\Interfaces\ContainerInterface;
 use Rudra\Interfaces\ValidationInterface;
 
 /**
- * Класс валидации данных
- *
  * Class Validation
  * @package Rudra
  */
