@@ -18,12 +18,10 @@ trait ValidationOutputTrait
 {
 
     /**
-     * Проверяет все результаты собранные в массив
-     *
-     * @param $data
+     * @param array $data
      * @return bool
      */
-    public function access($data): bool
+    public function access(array $data): bool
     {
         foreach ($data as $item) {
             if ($item[0] === false) {
@@ -35,14 +33,11 @@ trait ValidationOutputTrait
     }
 
     /**
-     * Возвращает обработанные и проверенные данные
-     * исключая при этом элементы массива $excludedKeys
-     *
-     * @param       $data
+     * @param array $data
      * @param array $excludedKeys
-     * @return mixed
+     * @return array
      */
-    public function get(array $data, array $excludedKeys = [])
+    public function get(array $data, array $excludedKeys = []): array
     {
         $result = [];
 
@@ -60,14 +55,11 @@ trait ValidationOutputTrait
     }
 
     /**
-     * Возвращает массив ошибок
-     * исключая при этом элементы массива $excludedKeys
-     *
      * @param $data
      * @param $excludedKeys
-     * @return mixed
+     * @return array
      */
-    public function flash($data, $excludedKeys)
+    public function flash($data, $excludedKeys): array
     {
         $result = [];
 
