@@ -31,20 +31,15 @@ class Validation implements ValidationInterface
      * @var ContainerInterface
      */
     protected $container;
-        /**
+    /**
      * @var string
      */
     protected $captchaSecret;
     /**
-     * Для сообщения об ошибке если данные
-     * не прошли проверку
-     *
      * @var null
      */
     protected $message = null;
     /**
-     * Результат проверки
-     *
      * @var bool
      */
     protected $result = true;
@@ -61,198 +56,99 @@ class Validation implements ValidationInterface
     }
 
     /**
-     * Собирает результат работы методов класса
-     *
      * @return array
      */
     public function run(): array
     {
-        if ($this->isResult()) {
-            return [$this->data(), null];
-        }
-
-        $result = [false, $this->message()];
-
-        $this->setMessage(null);
-        $this->setResult(true);
-
+        $result = ($this->result) ? [$this->data, null] : [false, $this->message];
+        $this->reset();
         return $result;
     }
 
     /**
-     * Проверяет необходимость заполнения поля - не меннее 1 символа,
-     * в случае прохождения результат проверки передается далее,
-     * если нет, то передает сообщение об ошибке в $this->message
-     * и $this->res = false
-     *
      * @param string $message
      * @return ValidationInterface
      */
     public function required(string $message = 'Необходимо заполнить поле'): ValidationInterface
     {
-        if (!$this->isResult()) {
-            return $this;
-        }
-
-        $this->setResult((mb_strlen($this->data) > 0) ? true : false);
-
-        if (!$this->isResult()) {
-            $this->setMessage($message);
-        }
-
+        $this->validate((mb_strlen($this->data) > 0), $message);
         return $this;
     }
 
     /**
-     * Проверяет являются ли данные числом,
-     * в случае прохождения результат проверки передается далее,
-     * если нет, то передает сообщение об ошибке в $this->message
-     * и $this->res = false
-     *
      * @param string $message
      * @return ValidationInterface
      */
     public function integer(string $message = 'Необходимо указать число'): ValidationInterface
     {
-        if (!$this->isResult()) {
-            return $this;
-        }
-
-        $this->setResult((is_numeric($this->data())) ? true : false);
-
-        if (!$this->isResult()) {
-            $this->setMessage($message);
-        }
-
+        $this->validate(is_numeric($this->data), $message);
         return $this;
     }
 
     /**
-     * Проверяет соответствуют ли данные минимальной длинне,
-     * в случае прохождения результат проверки передается далее,
-     * если нет, то передает сообщение об ошибке в $this->message
-     * и $this->res = false
-     *
      * @param        $data
      * @param string $message
      * @return ValidationInterface
      */
     public function minLength($data, string $message = 'Указано слишком мало символов'): ValidationInterface
     {
-        if (!$this->isResult()) {
-            return $this;
-        }
-
-        $this->setResult((mb_strlen($this->data()) >= $data) ? true : false);
-
-        if (!$this->isResult()) {
-            $this->setMessage($message);
-        }
-
+        $this->validate((mb_strlen($this->data) >= $data), $message);
         return $this;
     }
 
     /**
-     * Проверяет соответствуют ли данные максимальной длинне,
-     * в случае прохождения результат проверки передается далее,
-     * если нет, то передает сообщение об ошибке в $this->message
-     * и $this->res = false
-     *
      * @param        $data
      * @param string $message
      * @return ValidationInterface
      */
     public function maxLength($data, string $message = 'Указано слишком много символов'): ValidationInterface
     {
-        if (!$this->isResult()) {
-            return $this;
-        }
-
-        $this->setResult((mb_strlen($this->data()) <= $data) ? true : false);
-
-        if (!$this->isResult()) {
-            $this->setMessage($message);
-        }
-
+        $this->validate((mb_strlen($this->data) <= $data), $message);
         return $this;
     }
 
 
     /**
-     * Проверяет эквивалентность введенных данных
-     * в случае прохождения результат проверки передается далее,
-     * если нет, то передает сообщение об ошибке в $this->message
-     * и $this->res = false
-     *
      * @param        $data
      * @param string $message
      * @return ValidationInterface
      */
     public function equals($data, string $message = 'Пароли не совпадают'): ValidationInterface
     {
-        if (!$this->isResult()) {
-            return $this;
-        }
-
-        $this->setResult(($this->data() == $data) ? true : false);
-
-        if (!$this->isResult()) {
-            $this->setMessage($message);
-        }
-
+        $this->validate(($this->data == $data), $message);
         return $this;
     }
 
     /**
-     * Проверяет email на соответствие
-     * в случае прохождения результат проверки передается далее,
-     * если нет, то передает сообщение об ошибке в $this->message
-     * и $this->res = false
-     *
      * @param        $data
      * @param string $message
      * @return ValidationInterface
      */
     public function email($data, string $message = 'Email указан неверно'): ValidationInterface
     {
-        $this->set(filter_var($data, FILTER_VALIDATE_EMAIL));
-
-        if (!$this->data()) {
-            $this->setResult(false);
-            $this->setMessage($message);
-        }
-
+        $this->data = filter_var($data, FILTER_VALIDATE_EMAIL);
+        $this->validate($this->data ? true : false, $message);
         return $this;
     }
 
     /**
-     * Проверяет верность данных csrf защиты
-     * в случае прохождения результат проверки передается далее,
-     * если нет, то передает сообщение об ошибке в $this->message
-     * и $this->res = false
-     *
      * @param string $message
      * @return ValidationInterface
      */
     public function csrf($message = 'csrf'): ValidationInterface
     {
-        if (!in_array($this->data(), $this->container->getSession('csrf_token'))) {
-            $this->setData($this->container->getSession('csrf_token', '0'));
-            $this->setResult(false);
-            $this->setMessage($message);
+        if (!in_array($this->data, $this->container->getSession('csrf_token'))) {
+            $this->data    = $this->container->getSession('csrf_token', '0');
+            $this->result  = false;
+            $this->message = $message;
         } else {
-            $_POST['csrf'] = $this->data();
+            $_POST['csrf'] = $this->data;
         }
 
         return $this;
     }
 
     /**
-     * Проверяет верность заполнения капчи
-     * в случае прохождения результат проверки передается далее,
-     * если нет, то передает сообщение об ошибке в $this->message
-     * и $this->res = false
-     *
      * @param        $data
      * @param string $message
      * @return ValidationInterface
@@ -262,8 +158,8 @@ class Validation implements ValidationInterface
         $captcha = $data ?? false;
 
         if (!$captcha) {
-            $this->setResult(false);
-            $this->setMessage($message);
+            $this->result  = false;
+            $this->message = $message;
 
             return $this;
         }
@@ -276,45 +172,13 @@ class Validation implements ValidationInterface
         }
 
         if ($response['success'] === false) {
-            $this->setResult(false);
-            $this->setMessage($message);
+            $this->result  = false;
+            $this->message = $message;
         } else {
-            $this->setData($response['success']);
+            $this->data = $response['success'];
         }
 
         return $this;
-    }
-
-    /**
-     * @return bool
-     */
-    protected function isResult(): bool
-    {
-        return $this->result;
-    }
-
-    /**
-     * @param bool $result
-     */
-    protected function setResult(bool $result)
-    {
-        $this->result = $result;
-    }
-
-    /**
-     * @return string
-     */
-    protected function message()
-    {
-        return $this->message;
-    }
-
-    /**
-     * @param $message
-     */
-    protected function setMessage($message): void
-    {
-        $this->message = $message;
     }
 
     /**
@@ -323,5 +187,23 @@ class Validation implements ValidationInterface
     protected function captchaSecret(): string
     {
         return $this->captchaSecret;
+    }
+
+    /**
+     * @param bool   $bool
+     * @param string $message
+     * @return $this
+     */
+    protected function validate(bool $bool, string $message)
+    {
+        if (!$this->result) return $this;
+        $this->result = $bool;
+        if (!$this->result) $this->message = $message;
+    }
+
+    protected function reset(): void
+    {
+        $this->message = null;
+        $this->result  = true;
     }
 }

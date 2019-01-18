@@ -16,6 +16,7 @@ namespace Rudra\Interfaces;
  */
 interface ValidationInterface
 {
+
     /**
      * Собирает результат работы методов класса
      *
@@ -146,7 +147,7 @@ interface ValidationInterface
      * @param $data
      * @return bool
      */
-    public function access($data): bool;
+    public function access(array $data): bool;
 
     /**
      * Возвращает обработанные и проверенные данные
@@ -156,7 +157,7 @@ interface ValidationInterface
      * @param array $excludedKeys
      * @return mixed
      */
-    public function get(array $data, array $excludedKeys = []);
+    public function get(array $data, array $excludedKeys = []): array;
 
     /**
      * Возвращает массив ошибок
@@ -166,5 +167,5 @@ interface ValidationInterface
      * @param $excludedKeys
      * @return mixed
      */
-    public function flash($data, $excludedKeys);
+    public function flash($data, $excludedKeys): array;
 }
