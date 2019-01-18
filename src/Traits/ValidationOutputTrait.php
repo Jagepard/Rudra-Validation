@@ -45,13 +45,7 @@ trait ValidationOutputTrait
             $result[$key] = $value[0];
         }
 
-        foreach ($excludedKeys as $excludedKey) {
-            if (isset($result[$excludedKey])) {
-                unset($result[$excludedKey]);
-            }
-        }
-
-        return isset($result) ? $result : [];
+        return $this->getResult($result, $excludedKeys);
     }
 
     /**
@@ -69,6 +63,16 @@ trait ValidationOutputTrait
             }
         }
 
+        return $this->getResult($result, $excludedKeys);
+    }
+
+    /**
+     * @param array $result
+     * @param array $excludedKeys
+     * @return array
+     */
+    protected function getResult(array $result, array $excludedKeys)
+    {
         foreach ($excludedKeys as $excludedKey) {
             if (isset($result[$excludedKey])) {
                 unset($result[$excludedKey]);
