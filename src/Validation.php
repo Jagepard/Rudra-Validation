@@ -69,8 +69,7 @@ class Validation implements ValidationInterface
      */
     public function required(string $message = 'Необходимо заполнить поле'): ValidationInterface
     {
-        $this->validate((mb_strlen($this->data) > 0), $message);
-        return $this;
+        return $this->validate((mb_strlen($this->data) > 0), $message);
     }
 
     /**
@@ -79,8 +78,7 @@ class Validation implements ValidationInterface
      */
     public function integer(string $message = 'Необходимо указать число'): ValidationInterface
     {
-        $this->validate(is_numeric($this->data), $message);
-        return $this;
+        return $this->validate(is_numeric($this->data), $message);
     }
 
     /**
@@ -90,8 +88,7 @@ class Validation implements ValidationInterface
      */
     public function minLength($data, string $message = 'Указано слишком мало символов'): ValidationInterface
     {
-        $this->validate((mb_strlen($this->data) >= $data), $message);
-        return $this;
+        return $this->validate((mb_strlen($this->data) >= $data), $message);
     }
 
     /**
@@ -101,8 +98,7 @@ class Validation implements ValidationInterface
      */
     public function maxLength($data, string $message = 'Указано слишком много символов'): ValidationInterface
     {
-        $this->validate((mb_strlen($this->data) <= $data), $message);
-        return $this;
+        return $this->validate((mb_strlen($this->data) <= $data), $message);
     }
 
 
@@ -113,8 +109,7 @@ class Validation implements ValidationInterface
      */
     public function equals($data, string $message = 'Пароли не совпадают'): ValidationInterface
     {
-        $this->validate(($this->data == $data), $message);
-        return $this;
+        return $this->validate(($this->data == $data), $message);
     }
 
     /**
@@ -125,8 +120,7 @@ class Validation implements ValidationInterface
     public function email($data, string $message = 'Email указан неверно'): ValidationInterface
     {
         $this->data = filter_var($data, FILTER_VALIDATE_EMAIL);
-        $this->validate($this->data ? true : false, $message);
-        return $this;
+        return $this->validate($this->data ? true : false, $message);
     }
 
     /**
@@ -184,11 +178,12 @@ class Validation implements ValidationInterface
      * @param string $message
      * @return $this
      */
-    protected function validate(bool $bool, string $message)
+    protected function validate(bool $bool, string $message): ValidationInterface
     {
         if (!$this->result) return $this;
         $this->result = $bool;
         if (!$this->result) $this->message = $message;
+        return $this;
     }
 
     protected function reset(): void
