@@ -21,13 +21,13 @@ class ValidationTest extends PHPUnit_Framework_TestCase
 {
 
     /**
-     * @var ValidationInterface
-     */
-    protected $validation;
-    /**
      * @var ContainerInterface
      */
     protected $container;
+    /**
+     * @var ValidationInterface
+     */
+    protected $validation;
 
     protected function setUp(): void
     {
