@@ -58,8 +58,9 @@ class Validation implements ValidationInterface
      */
     public function run(): array
     {
-        $result = ($this->result) ? [$this->data, null] : [false, $this->message];
-        $this->reset();
+        $result        = ($this->result) ? [$this->data, null] : [false, $this->message];
+        $this->message = null;
+        $this->result  = true;
         return $result;
     }
 
@@ -181,14 +182,7 @@ class Validation implements ValidationInterface
     protected function validate(bool $bool, string $message): ValidationInterface
     {
         if (!$this->result) return $this;
-        $this->result = $bool;
-        if (!$this->result) $this->message = $message;
+        if (!$this->result = $bool) $this->message = $message;
         return $this;
-    }
-
-    protected function reset(): void
-    {
-        $this->message = null;
-        $this->result  = true;
     }
 }
