@@ -9,6 +9,7 @@ declare(strict_types=1);
  */
 
 use Rudra\Validation;
+use Rudra\Interfaces\ContainerInterface;
 use Rudra\Interfaces\ValidationInterface;
 use PHPUnit\Framework\TestCase as PHPUnit_Framework_TestCase;
 
@@ -19,6 +20,10 @@ class ValidationTest extends PHPUnit_Framework_TestCase
 {
 
     /**
+     * @var ContainerInterface
+     */
+    protected $container;
+    /**
      * @var ValidationInterface
      */
     protected $validation;
@@ -26,7 +31,8 @@ class ValidationTest extends PHPUnit_Framework_TestCase
     protected function setUp(): void
     {
         $_SERVER['REMOTE_ADDR'] = '192.168.0.1';
-        $this->validation       = new Validation(rudra(), '123');
+        $this->container        = rudra();
+        $this->validation       = new Validation($this->container, '123');
     }
 
     public function testSet(): void
@@ -184,7 +190,7 @@ class ValidationTest extends PHPUnit_Framework_TestCase
 
     public function testCsrf(): void
     {
-        $this->container->setSession('csrf_token', ['123456']);
+        $this->container()->setSession('csrf_token', ['123456']);
         $this->validation()->set('123456')->csrf();
         $data = $this->validation()->run();
 
@@ -269,5 +275,10 @@ class ValidationTest extends PHPUnit_Framework_TestCase
     public function validation(): ValidationInterface
     {
         return $this->validation;
+    }
+
+    public function container(): ContainerInterface
+    {
+        return $this->container;
     }
 }
