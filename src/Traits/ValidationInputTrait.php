@@ -65,15 +65,15 @@ trait ValidationInputTrait
     /**
      * @return string
      */
-    public function data(): string
+    public function data()
     {
         return $this->data;
     }
 
     /**
-     * @param string $data
+     * @param $data
      */
-    public function setData(string $data): void
+    public function setData($data): void
     {
         $this->data = $data;
     }
