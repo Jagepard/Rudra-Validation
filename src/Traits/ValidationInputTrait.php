@@ -34,7 +34,7 @@ trait ValidationInputTrait
      */
     public function set($data): ValidationInterface
     {
-        $this->data = $data;
+        $this->setData($data);
         return $this;
     }
 
@@ -48,7 +48,7 @@ trait ValidationInputTrait
      */
     public function sanitize(string $data, $allowableTags = null): ValidationInterface
     {
-        $this->data = strip_tags(trim($data), $allowableTags);
+        $this->setData(strip_tags(trim($data), $allowableTags));
         return $this;
     }
 
@@ -58,7 +58,23 @@ trait ValidationInputTrait
      */
     public function hash(string $salt = null): ValidationInterface
     {
-        $this->data = substr(crypt($this->data, '$6$rounds=' . $salt), 10);
+        $this->setData(substr(crypt($this->data, '$6$rounds=' . $salt), 10));
         return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function data(): string
+    {
+        return $this->data;
+    }
+
+    /**
+     * @param string $data
+     */
+    public function setData(string $data): void
+    {
+        $this->data = $data;
     }
 }
