@@ -3,9 +3,9 @@
 declare(strict_types=1);
 
 /**
- * @author    : Korotkov Danila <dankorot@gmail.com>
- * @copyright Copyright (c) 2018, Korotkov Danila
- * @license   http://www.gnu.org/licenses/gpl.html GNU GPLv3.0
+ * @author    : Jagepard <jagepard@yandex.ru">
+ * @copyright Copyright (c) 2019, Jagepard
+ * @license   https://mit-license.org/ MIT
  */
 
 namespace Rudra;
@@ -15,32 +15,27 @@ use Rudra\Traits\ValidationOutputTrait;
 use Rudra\Interfaces\ContainerInterface;
 use Rudra\Interfaces\ValidationInterface;
 
-/**
- * Class Validation
- * @package Rudra
- */
 class Validation implements ValidationInterface
 {
-
     use ValidationInputTrait;
     use ValidationOutputTrait;
 
     /**
      * @var ContainerInterface
      */
-    protected $container;
+    private $container;
     /**
      * @var string
      */
-    protected $captchaSecret;
+    private $captchaSecret;
     /**
      * @var null
      */
-    protected $message = null;
+    private $message = null;
     /**
      * @var bool
      */
-    protected $result = true;
+    private $result = true;
 
     /**
      * Validation constructor.
@@ -181,7 +176,7 @@ class Validation implements ValidationInterface
      * @param string $message
      * @return $this
      */
-    protected function validate(bool $bool, string $message): ValidationInterface
+    private function validate(bool $bool, string $message): ValidationInterface
     {
         if (!$this->isResult()) return $this;
         $this->setResult($bool);
