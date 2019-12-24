@@ -10,9 +10,7 @@ declare(strict_types=1);
 
 namespace Rudra\Validation\Tests;
 
-use Rudra\Validation\Validation;
-use Rudra\Interfaces\ContainerInterface;
-use Rudra\Validation\ValidationInterface;
+use Rudra\Validation\{Validation, ValidationInterface};
 use PHPUnit\Framework\TestCase as PHPUnit_Framework_TestCase;
 
 class ValidationTest extends PHPUnit_Framework_TestCase
@@ -25,240 +23,192 @@ class ValidationTest extends PHPUnit_Framework_TestCase
     protected function setUp(): void
     {
         $_SERVER['REMOTE_ADDR'] = '192.168.0.1';
-        $this->validation       = new Validation('123');
+        $this->validation       = new Validation();
     }
 
     public function testSet(): void
     {
-        $this->validation->set('String');
-        $data = $this->validation->run();
-
-        $this->assertEquals('String', $data[0]);
-        $this->assertNull($data[1]);
+        $checked = $this->validation->set('String')->run();
+        $this->assertEquals('String', $checked[0]);
+        $this->assertNull($checked[1]);
     }
 
     public function testSanitize(): void
     {
-        $this->validation->sanitize(' <p>String</p> ');
-        $data = $this->validation->run();
+        $checked = $this->validation->sanitize(' <p>String</p> ')->run();
+        $this->assertEquals('String', $checked[0]);
+        $this->assertNull($checked[1]);
 
-        $this->assertEquals('String', $data[0]);
-        $this->assertNull($data[1]);
-
-        $this->validation->sanitize(' <p>String</p> ', '<p><a>');
-        $data = $this->validation->run();
-
-        $this->assertEquals('<p>String</p>', $data[0]);
-        $this->assertNull($data[1]);
+        $checked = $this->validation->sanitize(' <p>String</p> ', '<p><a>')->run();
+        $this->assertEquals('<p>String</p>', $checked[0]);
+        $this->assertNull($checked[1]);
     }
 
     public function testHash(): void
     {
-        $this->validation->set('123456')->hash();
-        $data = $this->validation->run();
-
+        $checked = $this->validation->set('123456')->hash()->run();
         $this->assertEquals(
             '$/P7XMG2B8gCLzZNXrLASJ9TmWFa3Ek9j0owC5/Pub5CBSR1Aeihs4.QFZmiQK2cou6DgNyCnJuZUCKSh1uTpa.',
-            $data[0]
+            $checked[0]
         );
-        $this->assertNull($data[1]);
+        $this->assertNull($checked[1]);
     }
 
     public function testRequired(): void
     {
-        $this->validation->set('')->required();
-        $data = $this->validation->run();
+        $checked = $this->validation->set('')->required()->run();
+        $this->assertFalse($checked[0]);
+        $this->assertEquals('You must fill in the field', $checked[1]);
 
-        $this->assertFalse($data[0]);
-        $this->assertEquals('Необходимо заполнить поле', $data[1]);
+        $checked = $this->validation->set('')->integer()->required()->run();
+        $this->assertFalse($checked[0]);
+        $this->assertEquals('Number is required', $checked[1]);
 
-        $this->validation->set('')->integer()->required();
-        $data = $this->validation->run();
-
-        $this->assertFalse($data[0]);
-        $this->assertEquals('Необходимо указать число', $data[1]);
-
-        $this->validation->set('String')->required();
-        $data = $this->validation->run();
-
-        $this->assertEquals('String', $data[0]);
-        $this->assertNull($data[1]);
+        $checked = $this->validation->set('String')->required()->run();
+        $this->assertEquals('String', $checked[0]);
+        $this->assertNull($checked[1]);
     }
 
     public function testInteger(): void
     {
-        $this->validation->set('')->required()->integer();
-        $data = $this->validation->run();
+        $checked = $this->validation->set('')->required()->integer()->run();
+        $this->assertFalse($checked[0]);
+        $this->assertEquals('You must fill in the field', $checked[1]);
 
-        $this->assertFalse($data[0]);
-        $this->assertEquals('Необходимо заполнить поле', $data[1]);
-
-        $this->validation->set('123')->integer();
-        $data = $this->validation->run();
-
-        $this->assertEquals('123', $data[0]);
-        $this->assertNull($data[1]);
+        $checked = $this->validation->set('123')->integer()->run();
+        $this->assertEquals('123', $checked[0]);
+        $this->assertNull($checked[1]);
     }
 
     public function testMinLength(): void
     {
-        $this->validation->set('')->required()->minLength(5);
-        $data = $this->validation->run();
+        $checked = $this->validation->set('')->required()->minLength(5)->run();
+        $this->assertFalse($checked[0]);
+        $this->assertEquals('You must fill in the field', $checked[1]);
 
-        $this->assertFalse($data[0]);
-        $this->assertEquals('Необходимо заполнить поле', $data[1]);
+        $checked = $this->validation->set('12345')->minLength(5)->run();
+        $this->assertEquals('12345', $checked[0]);
+        $this->assertNull($checked[1]);
 
-        $this->validation->set('12345')->minLength(5);
-        $data = $this->validation->run();
-
-        $this->assertEquals('12345', $data[0]);
-        $this->assertNull($data[1]);
-
-        $this->validation->set('123')->minLength(5);
-        $data = $this->validation->run();
-
-        $this->assertFalse($data[0]);
-        $this->assertEquals('Указано слишком мало символов', $data[1]);
+        $checked = $this->validation->set('123')->minLength(5)->run();
+        $this->assertFalse($checked[0]);
+        $this->assertEquals('Too few characters specified', $checked[1]);
     }
 
     public function testMaxLength(): void
     {
-        $this->validation->set('')->required()->maxLength(5);
-        $data = $this->validation->run();
+        $checked = $this->validation->set('')->required()->maxLength(5)->run();
+        $this->assertFalse($checked[0]);
+        $this->assertEquals('You must fill in the field', $checked[1]);
 
-        $this->assertFalse($data[0]);
-        $this->assertEquals('Необходимо заполнить поле', $data[1]);
+        $checked = $this->validation->set('12345')->maxLength(5)->run();
+        $this->assertEquals('12345', $checked[0]);
+        $this->assertNull($checked[1]);
 
-        $this->validation->set('12345')->maxLength(5);
-        $data = $this->validation->run();
-
-        $this->assertEquals('12345', $data[0]);
-        $this->assertNull($data[1]);
-
-        $this->validation->set('123456')->maxLength(5);
-        $data = $this->validation->run();
-
-        $this->assertFalse($data[0]);
-        $this->assertEquals('Указано слишком много символов', $data[1]);
+        $checked = $this->validation->set('123456')->maxLength(5)->run();
+        $this->assertFalse($checked[0]);
+        $this->assertEquals('Too many characters specified', $checked[1]);
     }
 
     public function testEquals(): void
     {
-        $this->validation->set('')->required()->equals('456');
-        $data = $this->validation->run();
+        $checked = $this->validation->set('')->required()->equals('456')->run();
+        $this->assertFalse($checked[0]);
+        $this->assertEquals('You must fill in the field', $checked[1]);
 
-        $this->assertFalse($data[0]);
-        $this->assertEquals('Необходимо заполнить поле', $data[1]);
+        $checked = $this->validation->set('12345')->equals('12345')->run();
+        $this->assertEquals('12345', $checked[0]);
+        $this->assertNull($checked[1]);
 
-        $this->validation->set('12345')->equals('12345');
-        $data = $this->validation->run();
-
-        $this->assertEquals('12345', $data[0]);
-        $this->assertNull($data[1]);
-
-        $this->validation->set('123')->equals('456');
-        $data = $this->validation->run();
-
-        $this->assertFalse($data[0]);
-        $this->assertEquals('Пароли не совпадают', $data[1]);
+        $checked = $this->validation->set('123')->equals('456')->run();
+        $this->assertFalse($checked[0]);
+        $this->assertEquals('Values ​​do not match', $checked[1]);
     }
 
     public function testEmail(): void
     {
-        $this->validation->set('')->required()->email('user@example.com');
-        $data = $this->validation->run();
+        $checked = $this->validation->set('')->required()->email('user@example.com')->run();
+        $this->assertFalse($checked[0]);
+        $this->assertEquals('You must fill in the field', $checked[1]);
 
-        $this->assertFalse($data[0]);
-        $this->assertEquals('Необходимо заполнить поле', $data[1]);
+        $checked = $this->validation->email('user@example.com')->run();
+        $this->assertEquals('user@example.com', $checked[0]);
+        $this->assertNull($checked[1]);
 
-        $this->validation->email('user@example.com');
-        $data = $this->validation->run();
-
-        $this->assertEquals('user@example.com', $data[0]);
-        $this->assertNull($data[1]);
-
-        $this->validation->email('123');
-        $data = $this->validation->run();
-
-        $this->assertFalse($data[0]);
-        $this->assertEquals('Email указан неверно', $data[1]);
+        $checked = $this->validation->email('123')->run();
+        $this->assertFalse($checked[0]);
+        $this->assertEquals('Email is invalid', $checked[1]);
     }
 
     public function testCsrf(): void
     {
         $_SESSION['csrf_token'][] = '123456';
-        $this->validation->set('123456')->csrf($_SESSION['csrf_token']);
-        $data = $this->validation->run();
+        $checked = $this->validation->set('123456')->csrf($_SESSION['csrf_token'])->run();
+        $this->assertEquals('123456', $checked[0]);
+        $this->assertNull($checked[1]);
 
-        $this->assertEquals('123456', $data[0]);
-        $this->assertNull($data[1]);
-
-        $this->validation->set('123')->csrf($_SESSION['csrf_token']);
-        $data = $this->validation->run();
-
-        $this->assertFalse($data[0]);
-        $this->assertEquals('csrf', $data[1]);
+        $checked = $this->validation->set('123')->csrf($_SESSION['csrf_token'])->run();
+        $this->assertFalse($checked[0]);
+        $this->assertEquals('csrf', $checked[1]);
     }
 
     public function testCapcha(): void
     {
-        $data = $this->validation->captcha(null)->run();
-        $this->assertFalse($data[0]);
-        $this->assertEquals('Пожалуйста заполните поле :: reCaptcha', $data[1]);
-        $data = $this->validation->captcha('123')->run();
-        $this->assertFalse($data[0]);
-        $this->assertEquals('Пожалуйста заполните поле :: reCaptcha', $data[1]);
-        $data = $this->validation->captcha('test_success', 'test_success')->run();
-        $this->assertTrue($data[0]);
-        $this->assertNull($data[1]);
+        $checked = $this->validation->captcha(null)->run();
+        $this->assertFalse($checked[0]);
+        $this->assertEquals('Please fill in the field :: reCaptcha', $checked[1]);
+        $checked = $this->validation->captcha('123')->run();
+        $this->assertFalse($checked[0]);
+        $this->assertEquals('Please fill in the field :: reCaptcha', $checked[1]);
+        $checked = $this->validation->captcha('test_success', 'test_success')->run();
+        $this->assertTrue($checked[0]);
+        $this->assertNull($checked[1]);
     }
 
     public function testAccess(): void
     {
-        $validation = [
+        $data = [
             'required'  => $this->validation->set('')->required()->run(),
             'integer'   => $this->validation->set('')->required()->integer()->run(),
             'minLength' => $this->validation->set('')->required()->minLength(5)->run(),
             'maxLength' => $this->validation->set('')->required()->maxLength(5)->run(),
         ];
 
-        $this->assertFalse($this->validation->access($validation));
+        $this->assertFalse($this->validation->checkArray($data));
 
-        $validation = [
+        $data = [
             'required'  => $this->validation->set('123')->required()->run(),
             'integer'   => $this->validation->set('123')->required()->integer()->run(),
             'minLength' => $this->validation->set('12345')->required()->minLength(5)->run(),
             'maxLength' => $this->validation->set('12345')->required()->maxLength(5)->run(),
         ];
 
-        $this->assertTrue($this->validation->access($validation));
+        $this->assertTrue($this->validation->checkArray($data));
     }
 
-    public function testGet(): void
+    public function testGetChecked(): void
     {
-        $validation = [
+        $data = [
             'required'  => $this->validation->set('123')->required()->run(),
             'integer'   => $this->validation->set('123')->required()->integer()->run(),
             'minLength' => $this->validation->set('12345')->required()->minLength(5)->run(),
             'maxLength' => $this->validation->set('12345')->required()->maxLength(5)->run(),
         ];
 
-        $validated = $this->validation->get($validation, ['required']);
-
-        $this->assertCount(3, $validated);
+        $checked = $this->validation->getChecked($data, ['required']);
+        $this->assertCount(3, $checked);
     }
 
     public function testFlash(): void
     {
-        $validation = [
+        $data = [
             'required'  => $this->validation->set('')->required()->run(),
             'integer'   => $this->validation->set('')->required()->integer()->run(),
             'minLength' => $this->validation->set('')->required()->minLength(5)->run(),
             'maxLength' => $this->validation->set('')->required()->maxLength(5)->run(),
         ];
 
-        $flash = $this->validation->flash($validation, ['required']);
-
-        $this->assertCount(3, $flash);
+        $alerts = $this->validation->getAlerts($data, ['required']);
+        $this->assertCount(3, $alerts);
     }
 }
