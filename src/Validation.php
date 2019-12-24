@@ -8,26 +8,14 @@ declare(strict_types=1);
  * @license   https://mit-license.org/ MIT
  */
 
-namespace Rudra;
-
-use Rudra\Traits\ValidationInputTrait;
-use Rudra\Traits\ValidationOutputTrait;
-use Rudra\Interfaces\ContainerInterface;
-use Rudra\Interfaces\ValidationInterface;
+namespace Rudra\Validation;
 
 class Validation implements ValidationInterface
 {
-    use ValidationInputTrait;
-    use ValidationOutputTrait;
-
-    /**
-     * @var ContainerInterface
-     */
-    private $container;
     /**
      * @var string
      */
-    private $captchaSecret;
+    private $verifiable;
     /**
      * @var null
      */
@@ -35,17 +23,37 @@ class Validation implements ValidationInterface
     /**
      * @var bool
      */
-    private $result = true;
+    private $checked = true;
 
     /**
-     * Validation constructor.
-     * @param ContainerInterface $container
-     * @param null               $captchaSecret
+     * @param $verifiable
+     * @return ValidationInterface
      */
-    public function __construct(ContainerInterface $container, $captchaSecret = null)
+    public function set($verifiable): ValidationInterface
     {
-        $this->container     = $container;
-        $this->captchaSecret = $captchaSecret;
+        $this->verifiable = $verifiable;
+        return $this;
+    }
+
+    /**
+     * @param  string  $verifiable
+     * @param  null  $allowableTags
+     * @return ValidationInterface
+     */
+    public function sanitize(string $verifiable, $allowableTags = null): ValidationInterface
+    {
+        $this->set(strip_tags(trim($verifiable), $allowableTags));
+        return $this;
+    }
+
+    /**
+     * @param string|null $salt
+     * @return ValidationInterface
+     */
+    public function hash(string $salt = null): ValidationInterface
+    {
+        $this->set(substr(crypt($this->verifiable, '$6$rounds=' . $salt), 10));
+        return $this;
     }
 
     /**
@@ -53,12 +61,12 @@ class Validation implements ValidationInterface
      */
     public function run(): array
     {
-        $result = ($this->isResult()) ? [$this->data(), null] : [false, $this->message];
+        $checked = ($this->isChecked()) ? [$this->verifiable, null] : [false, $this->message];
 
         $this->setMessage(null);
-        $this->setResult(true);
+        $this->setChecked(true);
 
-        return $result;
+        return $checked;
     }
 
     /**
@@ -67,7 +75,7 @@ class Validation implements ValidationInterface
      */
     public function required(string $message = 'Необходимо заполнить поле'): ValidationInterface
     {
-        return $this->validate((mb_strlen($this->data()) > 0), $message);
+        return $this->validate((mb_strlen($this->verifiable) > 0), $message);
     }
 
     /**
@@ -76,7 +84,7 @@ class Validation implements ValidationInterface
      */
     public function integer(string $message = 'Необходимо указать число'): ValidationInterface
     {
-        return $this->validate(is_numeric($this->data()), $message);
+        return $this->validate(is_numeric($this->verifiable), $message);
     }
 
     /**
@@ -86,7 +94,7 @@ class Validation implements ValidationInterface
      */
     public function minLength($data, string $message = 'Указано слишком мало символов'): ValidationInterface
     {
-        return $this->validate((mb_strlen($this->data()) >= $data), $message);
+        return $this->validate((mb_strlen($this->verifiable) >= $data), $message);
     }
 
     /**
@@ -96,76 +104,76 @@ class Validation implements ValidationInterface
      */
     public function maxLength($data, string $message = 'Указано слишком много символов'): ValidationInterface
     {
-        return $this->validate((mb_strlen($this->data()) <= $data), $message);
+        return $this->validate((mb_strlen($this->verifiable) <= $data), $message);
     }
 
 
     /**
-     * @param        $data
-     * @param string $message
+     * @param $verifiable
+     * @param  string  $message
      * @return ValidationInterface
      */
-    public function equals($data, string $message = 'Пароли не совпадают'): ValidationInterface
+    public function equals($verifiable, string $message = 'Пароли не совпадают'): ValidationInterface
     {
-        return $this->validate(($this->data() == $data), $message);
+        return $this->validate(($this->verifiable === $verifiable), $message);
     }
 
     /**
-     * @param        $data
-     * @param string $message
+     * @param $verifiable
+     * @param  string  $message
      * @return ValidationInterface
      */
-    public function email($data, string $message = 'Email указан неверно'): ValidationInterface
+    public function email($verifiable, string $message = 'Email указан неверно'): ValidationInterface
     {
-        $this->setData(filter_var($data, FILTER_VALIDATE_EMAIL));
-        return $this->validate($this->data() ? true : false, $message);
+        $this->set(filter_var($verifiable, FILTER_VALIDATE_EMAIL));
+        return $this->validate($this->verifiable ? true : false, $message);
     }
 
     /**
-     * @param string $message
+     * @param    $csrfSession
+     * @param  string  $message
      * @return ValidationInterface
      */
-    public function csrf($message = 'csrf'): ValidationInterface
+    public function csrf($csrfSession, $message = 'csrf'): ValidationInterface
     {
-        if (!in_array($this->data(), $this->container()->getSession('csrf_token'))) {
-            $this->setData($this->container()->getSession('csrf_token', '0'));
+        if (!in_array($this->verifiable, $csrfSession)) {
+            $this->set($csrfSession[0]);
             $this->setMessage($message);
-            $this->setResult(false);
+            $this->setChecked(false);
         } else {
-            $_POST['csrf'] = $this->data();
+            $_POST['csrf'] = $this->verifiable;
         }
 
         return $this;
     }
 
     /**
-     * @param        $data
-     * @param string $message
+     * @param  bool  $captcha
+     * @param  string  $secret
+     * @param  string  $message
      * @return ValidationInterface
      */
-    public function captcha($data, $message = 'Пожалуйста заполните поле :: reCaptcha'): ValidationInterface
+    public function captcha($captcha = false, $secret = '', $message = 'Пожалуйста заполните поле :: reCaptcha'): ValidationInterface
     {
-        $captcha = $data ?? false;
-
         if (!$captcha) {
             $this->setMessage($message);
-            $this->setResult(false);
+            $this->setChecked(false);
 
             return $this;
         }
 
-        $remoteAddress = $this->container()->getServer('REMOTE_ADDR') ?? '127.0.0.1';
-        $response      = json_decode(file_get_contents("https://www.google.com/recaptcha/api/siteverify?secret=" . $this->captchaSecret() . "&response=" . $captcha . "&remoteip=" . $remoteAddress), true);
+        $remoteAddress = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
+        $response      = json_decode(file_get_contents("https://www.google.com/recaptcha/api/siteverify?secret=" . $secret . "&response=" . $captcha . "&remoteip=" . $remoteAddress), true);
 
-        if ($this->captchaSecret() == 'test_success') {
+        if ($secret === 'test_success') {
             $response['success'] = true;
         }
 
         if ($response['success'] === false) {
             $this->setMessage($message);
-            $this->setResult(false);
+            $this->setChecked(false);
         } else {
-            $this->setData($response['success']);
+            $this->set($response['success']);
         }
 
         return $this;
@@ -178,26 +186,10 @@ class Validation implements ValidationInterface
      */
     private function validate(bool $bool, string $message): ValidationInterface
     {
-        if (!$this->isResult()) return $this;
-        $this->setResult($bool);
-        if (!$this->isResult()) $this->setMessage($message);
+        if (!$this->isChecked()) return $this;
+        $this->setChecked($bool);
+        if (!$this->isChecked()) $this->setMessage($message);
         return $this;
-    }
-
-    /**
-     * @return string
-     */
-    public function captchaSecret(): string
-    {
-        return $this->captchaSecret;
-    }
-
-    /**
-     * @param string $captchaSecret
-     */
-    public function setCaptchaSecret(string $captchaSecret): void
-    {
-        $this->captchaSecret = $captchaSecret;
     }
 
     /**
@@ -219,21 +211,81 @@ class Validation implements ValidationInterface
     /**
      * @return bool
      */
-    public function isResult(): bool
+    public function isChecked(): bool
     {
-        return $this->result;
+        return $this->checked;
     }
 
     /**
-     * @param bool $result
+     * @param bool $checked
      */
-    public function setResult(bool $result): void
+    public function setChecked(bool $checked): void
     {
-        $this->result = $result;
+        $this->checked = $checked;
     }
 
-    public function container(): ContainerInterface
+    /**
+     * @param array $data
+     * @return bool
+     */
+    public function access(array $data): bool
     {
-        return $this->container;
+        foreach ($data as $item) {
+            if ($item[0] === false) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * @param array $data
+     * @param array $excludedKeys
+     * @return array
+     */
+    public function get(array $data, array $excludedKeys = []): array
+    {
+        $checked = [];
+
+        foreach ($data as $key => $value) {
+            $checked[$key] = $value[0];
+        }
+
+        return $this->getResult($checked, $excludedKeys);
+    }
+
+    /**
+     * @param $data
+     * @param $excludedKeys
+     * @return array
+     */
+    public function flash($data, $excludedKeys): array
+    {
+        $checked = [];
+
+        foreach ($data as $key => $value) {
+            if (isset($value[1])) {
+                $checked[$key] = $value[1];
+            }
+        }
+
+        return $this->getResult($checked, $excludedKeys);
+    }
+
+    /**
+     * @param array $checked
+     * @param array $excludedKeys
+     * @return array
+     */
+    private function getResult(array $checked, array $excludedKeys)
+    {
+        foreach ($excludedKeys as $excludedKey) {
+            if (isset($checked[$excludedKey])) {
+                unset($checked[$excludedKey]);
+            }
+        }
+
+        return isset($checked) ? $checked : [];
     }
 }
