@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * @author    : Jagepard <jagepard@yandex.ru">
  * @copyright Copyright (c) 2019, Jagepard
@@ -78,11 +76,11 @@ interface ValidationInterface
     public function email($data, string $message = 'Email is invalid'): ValidationInterface;
 
     /**
-     * @param   $csrfSession
+     * @param  array  $csrfSession
      * @param  string  $message
      * @return ValidationInterface
      */
-    public function csrf($csrfSession, $message = 'csrf'): ValidationInterface;
+    public function csrf(array $csrfSession, $message = 'csrf'): ValidationInterface;
 
     /**
      * @param  bool  $captcha
@@ -96,19 +94,19 @@ interface ValidationInterface
      * @param $data
      * @return bool
      */
-    public function access(array $data): bool;
+    public function checkArray(array $data): bool;
 
     /**
-     * @param       $data
-     * @param array $excludedKeys
-     * @return mixed
+     * @param  array  $data
+     * @param  array  $excludedKeys
+     * @return array
      */
-    public function get(array $data, array $excludedKeys = []): array;
+    public function getChecked(array $data, array $excludedKeys = []): array;
 
     /**
      * @param $data
      * @param $excludedKeys
      * @return mixed
      */
-    public function flash($data, $excludedKeys): array;
+    public function getAlerts($data, $excludedKeys): array;
 }
