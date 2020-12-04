@@ -79,15 +79,7 @@ class Validation implements ValidationInterface
 
     public function csrf(array $csrfSession, $message = 'csrf'): ValidationInterface
     {
-        if (!in_array($this->verifiable, $csrfSession)) {
-            $this->set($csrfSession[0]);
-            $this->setMessage($message);
-            $this->setChecked(false);
-        } else {
-            $_POST['csrf'] = $this->verifiable;
-        }
-
-        return $this;
+        return $this->validate(in_array($this->verifiable, $csrfSession), $message);
     }
 
     public function captcha(
