@@ -23,5 +23,5 @@ interface ValidationInterface
     public function captcha($captcha = false, $secret = '', $message = 'Please fill in the field :: reCaptcha'): ValidationInterface;
     public function checkArray(array $data): bool;
     public function getChecked(array $data, array $excludedKeys = []): array;
-    public function getAlerts($data, $excludedKeys): array;
+    public function getAlerts(array $data, array $excludedKeys = []): array;
 }
