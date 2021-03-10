@@ -166,7 +166,7 @@ class Validation implements ValidationInterface
         return $this->removeExcluded($checked, $excludedKeys);
     }
 
-    public function getAlerts($data, $excludedKeys): array
+    public function getAlerts(array $data, array $excludedKeys = []): array
     {
         $alerts = [];
 
