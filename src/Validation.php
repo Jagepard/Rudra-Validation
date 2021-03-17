@@ -55,14 +55,14 @@ class Validation implements ValidationInterface
         return $this->validate(is_numeric($this->verifiable), $message);
     }
 
-    public function minLength($data, string $message = 'Too few characters specified'): ValidationInterface
+    public function min($length, string $message = 'Too few characters specified'): ValidationInterface
     {
-        return $this->validate((mb_strlen($this->verifiable) >= $data), $message);
+        return $this->validate((mb_strlen($this->verifiable) >= $length), $message);
     }
 
-    public function maxLength($data, string $message = 'Too many characters specified'): ValidationInterface
+    public function max($length, string $message = 'Too many characters specified'): ValidationInterface
     {
-        return $this->validate((mb_strlen($this->verifiable) <= $data), $message);
+        return $this->validate((mb_strlen($this->verifiable) <= $length), $message);
     }
 
     public function equals($verifiable, string $message = 'Values ​​do not match'): ValidationInterface
@@ -144,7 +144,7 @@ class Validation implements ValidationInterface
         $this->checked = $checked;
     }
 
-    public function checkArray(array $data): bool
+    public function approve(array $data): bool
     {
         foreach ($data as $item) {
             if ($item[0] === false) {
@@ -155,7 +155,7 @@ class Validation implements ValidationInterface
         return true;
     }
 
-    public function getChecked(array $data, array $excludedKeys = []): array
+    public function getValidated(array $data, array $excludedKeys = []): array
     {
         $checked = [];
 
