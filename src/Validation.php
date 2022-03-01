@@ -67,7 +67,7 @@ class Validation implements ValidationInterface
 
     public function equals($verifiable, string $message = 'Values ​​do not match'): ValidationInterface
     {
-        return $this->validate(($this->verifiable === $verifiable), $message);
+        return $this->validate(($this->verifiable == $verifiable), $message);
     }
 
     public function email($verifiable, string $message = 'Email is invalid'): ValidationInterface
