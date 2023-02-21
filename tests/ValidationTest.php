@@ -40,16 +40,6 @@ class ValidationTest extends PHPUnit_Framework_TestCase
         $this->assertNull($checked[1]);
     }
 
-    public function testHash(): void
-    {
-        $checked = ValidationFacade::set('123456')->hash()->run();
-        $this->assertEquals(
-            '$/P7XMG2B8gCLzZNXrLASJ9TmWFa3Ek9j0owC5/Pub5CBSR1Aeihs4.QFZmiQK2cou6DgNyCnJuZUCKSh1uTpa.',
-            $checked[0]
-        );
-        $this->assertNull($checked[1]);
-    }
-
     public function testRequired(): void
     {
         $checked = ValidationFacade::set('')->required()->run();
@@ -78,30 +68,30 @@ class ValidationTest extends PHPUnit_Framework_TestCase
 
     public function testMinLength(): void
     {
-        $checked = ValidationFacade::set('')->required()->minLength(5)->run();
+        $checked = ValidationFacade::set('')->required()->min(5)->run();
         $this->assertFalse($checked[0]);
         $this->assertEquals('You must fill in the field', $checked[1]);
 
-        $checked = ValidationFacade::set('12345')->minLength(5)->run();
+        $checked = ValidationFacade::set('12345')->min(5)->run();
         $this->assertEquals('12345', $checked[0]);
         $this->assertNull($checked[1]);
 
-        $checked = ValidationFacade::set('123')->minLength(5)->run();
+        $checked = ValidationFacade::set('123')->min(5)->run();
         $this->assertFalse($checked[0]);
         $this->assertEquals('Too few characters specified', $checked[1]);
     }
 
     public function testMaxLength(): void
     {
-        $checked = ValidationFacade::set('')->required()->maxLength(5)->run();
+        $checked = ValidationFacade::set('')->required()->max(5)->run();
         $this->assertFalse($checked[0]);
         $this->assertEquals('You must fill in the field', $checked[1]);
 
-        $checked = ValidationFacade::set('12345')->maxLength(5)->run();
+        $checked = ValidationFacade::set('12345')->max(5)->run();
         $this->assertEquals('12345', $checked[0]);
         $this->assertNull($checked[1]);
 
-        $checked = ValidationFacade::set('123456')->maxLength(5)->run();
+        $checked = ValidationFacade::set('123456')->max(5)->run();
         $this->assertFalse($checked[0]);
         $this->assertEquals('Too many characters specified', $checked[1]);
     }
@@ -148,60 +138,47 @@ class ValidationTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('csrf', $checked[1]);
     }
 
-    public function testCapcha(): void
+    public function testApprove(): void
     {
-        $checked = ValidationFacade::captcha(null)->run();
-        $this->assertFalse($checked[0]);
-        $this->assertEquals('Please fill in the field :: reCaptcha', $checked[1]);
-        $checked = ValidationFacade::captcha('123')->run();
-        $this->assertFalse($checked[0]);
-        $this->assertEquals('Please fill in the field :: reCaptcha', $checked[1]);
-        $checked = ValidationFacade::captcha('test_success', 'test_success')->run();
-        $this->assertTrue($checked[0]);
-        $this->assertNull($checked[1]);
+        $data = [
+            'required' => ValidationFacade::set('')->required()->run(),
+            'integer'  => ValidationFacade::set('')->required()->integer()->run(),
+            'min'      => ValidationFacade::set('')->required()->min(5)->run(),
+            'max'      => ValidationFacade::set('')->required()->max(5)->run(),
+        ];
+
+        $this->assertFalse(ValidationFacade::approve($data));
+
+        $data = [
+            'required' => ValidationFacade::set('123')->required()->run(),
+            'integer'  => ValidationFacade::set('123')->required()->integer()->run(),
+            'min'      => ValidationFacade::set('12345')->required()->min(5)->run(),
+            'max'      => ValidationFacade::set('12345')->required()->max(5)->run(),
+        ];
+
+        $this->assertTrue(ValidationFacade::approve($data));
     }
 
-    public function testAccess(): void
+    public function testGetValidated(): void
     {
         $data = [
-            'required'  => ValidationFacade::set('')->required()->run(),
-            'integer'   => ValidationFacade::set('')->required()->integer()->run(),
-            'minLength' => ValidationFacade::set('')->required()->minLength(5)->run(),
-            'maxLength' => ValidationFacade::set('')->required()->maxLength(5)->run(),
+            'required' => ValidationFacade::set('123')->required()->run(),
+            'integer'  => ValidationFacade::set('123')->required()->integer()->run(),
+            'min'      => ValidationFacade::set('12345')->required()->min(5)->run(),
+            'max'      => ValidationFacade::set('12345')->required()->max(5)->run(),
         ];
 
-        $this->assertFalse(ValidationFacade::checkArray($data));
-
-        $data = [
-            'required'  => ValidationFacade::set('123')->required()->run(),
-            'integer'   => ValidationFacade::set('123')->required()->integer()->run(),
-            'minLength' => ValidationFacade::set('12345')->required()->minLength(5)->run(),
-            'maxLength' => ValidationFacade::set('12345')->required()->maxLength(5)->run(),
-        ];
-
-        $this->assertTrue(ValidationFacade::checkArray($data));
-    }
-
-    public function testGetChecked(): void
-    {
-        $data = [
-            'required'  => ValidationFacade::set('123')->required()->run(),
-            'integer'   => ValidationFacade::set('123')->required()->integer()->run(),
-            'minLength' => ValidationFacade::set('12345')->required()->minLength(5)->run(),
-            'maxLength' => ValidationFacade::set('12345')->required()->maxLength(5)->run(),
-        ];
-
-        $checked = ValidationFacade::getChecked($data, ['required']);
+        $checked = ValidationFacade::getValidated($data, ['required']);
         $this->assertCount(3, $checked);
     }
 
     public function testFlash(): void
     {
         $data = [
-            'required'  => ValidationFacade::set('')->required()->run(),
-            'integer'   => ValidationFacade::set('')->required()->integer()->run(),
-            'minLength' => ValidationFacade::set('')->required()->minLength(5)->run(),
-            'maxLength' => ValidationFacade::set('')->required()->maxLength(5)->run(),
+            'required' => ValidationFacade::set('')->required()->run(),
+            'integer'  => ValidationFacade::set('asd')->required()->integer()->run(),
+            'min'      => ValidationFacade::set('')->required()->min(5)->run(),
+            'max'      => ValidationFacade::set('')->required()->max(5)->run(),
         ];
 
         $alerts = ValidationFacade::getAlerts($data, ['required']);
