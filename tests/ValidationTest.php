@@ -9,8 +9,8 @@ declare(strict_types=1);
 
 namespace Rudra\Validation\Tests;
 
-use Rudra\Validation\{Validation, ValidationInterface, ValidationFacade};
 use PHPUnit\Framework\TestCase as PHPUnit_Framework_TestCase;
+use Rudra\Validation\{Validation, ValidationInterface, ValidationFacade};
 
 class ValidationTest extends PHPUnit_Framework_TestCase
 {
