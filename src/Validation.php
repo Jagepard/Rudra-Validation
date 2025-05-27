@@ -3,55 +3,22 @@
 declare(strict_types=1);
 
 /**
- * @author    : Jagepard <jagepard@yandex.ru">
- * @license   https://mit-license.org/ MIT
+ * @author  : Jagepard <jagepard@yandex.ru>
+ * @license https://mit-license.org/  MIT
  */
 
 namespace Rudra\Validation;
 
 class Validation implements ValidationInterface
 {
-    /**
-     * Checked data
-     * ------------------
-     * Проверяемые данные
-     *
-     * @var [type]
-     */
     private $verifiable;
-
-    /**
-     * Reporting non-compliance
-     * ------------------------------------
-     * Сообщение о несоответсвии требований
-     *
-     * @var string|null
-     */
     private ?string $message = null;
+    private bool $checked    = true;
 
     /**
-     * Check status
-     * ---------------
-     * Статус проверки
+     * Returns the result of data validation.
      *
-     * @var boolean
-     */
-    private bool $checked = true;
-
-    /**
-     * Выдает массив с результатом проверки
-     * в случае успешной проверки:
-     * [$this->verifiable // проверенные данные, null // вместо сообщения об ошибке]
-     * в случае если данные не соответствуют требованиям
-     * [false // вместо проверенных данных, $this->message // сообщение о несоответствии]
-     * ----------------------------------------------------------------------------------
-     * Gives an array with the result of the check
-     * in case of successful check:
-     * [$this->verifiable // verified data, null instead of error message]
-     * in case the data does not meet the requirements
-     * [false // instead of validated data, $this->message // mismatch message]
-     *
-     * @return array
+     * @return array [validated_value, error_message]
      */
     public function run(): array
     {
@@ -64,18 +31,10 @@ class Validation implements ValidationInterface
     }
 
     /**
-     * Checks if all elements of an array are validated
-     * Array example:
-     * $processed = [
-     *      'csrf_field' => Validation::sanitize($inputData["csrf_field"])->csrf(Session::get("csrf_token"))->run(),
-     *      'search'     => Validation::sanitize($inputData["search"])->min(1)->max(50)->run(),
-     *      'redirect'   => Validation::sanitize($inputData["redirect"])->max(500)->run(),
-     * ];
-     * -------------------------------------------------------------------------------------------------------------
-     * Проверяет все ли элементы массива прошли проверку
+     * Checks if all elements in the array passed validation.
      *
-     * @param  array   $data
-     * @return boolean
+     * @param array $data Array of validation results
+     * @return bool True if all items are valid
      */
     public function approve(array $data): bool
     {
@@ -89,16 +48,11 @@ class Validation implements ValidationInterface
     }
 
     /**
-     * Get an array of validated data
-     * $excludedKeys allows you to exclude elements which are not required after verification
-     * example: Validation::getValidated($processed, ["csrf_field", "_method"]);
-     * --------------------------------------------------------------------------------------
-     * Получить массив данных прошедших проверку
-     * $excludedKeys позволяет исключить элементы, которые не требуются после проверки
+     * Gets an array of validated values.
      *
-     * @param  array $data
-     * @param  array $excludedKeys
-     * @return array
+     * @param array $data
+     * @param array $excludedKeys Keys to exclude from the result
+     * @return array Array of validated values
      */
     public function getValidated(array $data, array $excludedKeys = []): array
     {
@@ -112,16 +66,11 @@ class Validation implements ValidationInterface
     }
 
     /**
-     * Receives messages about non-compliance with validation requirements
-     * $excludedKeys allows you to exclude elements which are not required after verification
-     * example: Validation::getAlerts($processed, ["_method"]);
-     * --------------------------------------------------------------------------------------
-     * Получает сообщения о несоответствии требованиям валидации
-     * $excludedKeys позволяет исключить элементы, которые не требуются после проверки
+     * Gets an array of validation error messages.
      *
-     * @param  array $data
-     * @param  array $excludedKeys
-     * @return array
+     * @param array $data
+     * @param array $excludedKeys Keys to exclude from the result
+     * @return array Array of error messages
      */
     public function getAlerts(array $data, array $excludedKeys = []): array
     {
@@ -137,31 +86,25 @@ class Validation implements ValidationInterface
     }
 
     /**
-     * Removes $excludedKeys from the array
-     * --------------------------------------------------
-     * Удаляет $excludedKeys исключенные ключи из массива
+     * Removes excluded keys from the array.
      *
-     * @param  array $inputArray
-     * @param  array $excludedKeys
-     * @return void
+     * @param array $inputArray Input array
+     * @param array $excludedKeys Keys to remove
+     * @return array Filtered array
      */
-    private function removeExcluded(array $inputArray, array $excludedKeys)
+    private function removeExcluded(array $inputArray, array $excludedKeys): array
     {
-        foreach ($excludedKeys as $excludedKey) {
-            if (isset($inputArray[$excludedKey])) {
-                unset($inputArray[$excludedKey]);
-            }
+        foreach ($excludedKeys as $key) {
+            unset($inputArray[$key]);
         }
 
-        return $inputArray ?? [];
+        return $inputArray;
     }
 
     /**
-     * Sets the data to be checked without processing
-     * ----------------------------------------------
-     * Устанавливает проверяемые данные без обработки
+     * Sets the value to be validated without processing.
      *
-     * @param  [type]              $verifiable
+     * @param mixed $verifiable Value to validate
      * @return ValidationInterface
      */
     public function set($verifiable): ValidationInterface
@@ -172,14 +115,10 @@ class Validation implements ValidationInterface
     }
 
     /**
-     * Sets the data to be checked with processing for strings 
-     * with valid tags: $allowableTags
-     * ---------------------------------------------------
-     * Устанавливает проверяемые данные с обработкой для строк 
-     * с указанием допустимых тегов: $allowableTags
+     * Sets the value to be validated after sanitizing HTML tags.
      *
-     * @param  string                 $verifiable
-     * @param  array|string|null|null $allowableTags
+     * @param string $verifiable Value to sanitize and validate
+     * @param array|string|null $allowableTags Optional allowed HTML tags
      * @return ValidationInterface
      */
     public function sanitize(string $verifiable, array|string|null $allowableTags = null): ValidationInterface
@@ -190,14 +129,10 @@ class Validation implements ValidationInterface
     }
 
     /**
-     * Sets the data before checking that the value is a valid e-mail.
-     * Sets the status to false and an error message if validation fails
-     * -------------------------------------------------------------------------------------
-     * Устанавливает данные предварительно проверяя, что значение является корректным e-mail
-     * Устанавливает статус false и сообщение об ошибке, если проверка не пройдена
-     * 
-     * @param  string              $verifiable
-     * @param  string              $message
+     * Validates the email address.
+     *
+     * @param string $verifiable Email to validate
+     * @param string $message Error message on failure
      * @return ValidationInterface
      */
     public function email(string $verifiable, string $message = 'Email is invalid'): ValidationInterface
@@ -207,13 +142,10 @@ class Validation implements ValidationInterface
         return $this->validate($this->verifiable ? true : false, $message);
     }
 
-
     /**
-     * Checks if a string value is set in $this->verifiable
-     * ---------------------------------------------------------------
-     * Проверяет установлено ли строковое значение в $this->verifiable
+     * Ensures a value is present (not empty).
      *
-     * @param  string              $message
+     * @param string $message Error message on failure
      * @return ValidationInterface
      */
     public function required(string $message = 'You must fill in the field'): ValidationInterface
@@ -222,11 +154,9 @@ class Validation implements ValidationInterface
     }
 
     /**
-     * Finds whether a $this->verifiable is a number or a numeric string 
-     * -----------------------------------------------------------------------------
-     * Проверяет, является ли $this->verifiable числом или строкой, содержащей число  
+     * Validates that the value is numeric.
      *
-     * @param  string              $message
+     * @param string $message Error message on failure
      * @return ValidationInterface
      */
     public function integer(string $message = 'Number is required'): ValidationInterface
@@ -235,12 +165,10 @@ class Validation implements ValidationInterface
     }
 
     /**
-     * Checks the string value in $this->verifiable against the minimum allowed number of characters
-     * ---------------------------------------------------------------------------------------------
-     * Проверяет строковое значение в $this->verifiable на минимально допустимое количество символов
+     * Validates that the value has at least the minimum number of characters.
      *
-     * @param  [type]              $length
-     * @param  string              $message
+     * @param int $length Minimum length
+     * @param string $message Error message on failure
      * @return ValidationInterface
      */
     public function min($length, string $message = 'Too few characters specified'): ValidationInterface
@@ -249,12 +177,10 @@ class Validation implements ValidationInterface
     }
 
     /**
-     * Checks the string value in $this->verifiable against the maximum allowed number of characters
-     * ----------------------------------------------------------------------------------------------
-     * Проверяет строковое значение в $this->verifiable на максимально допустимое количество символов
+     * Validates that the value does not exceed the maximum number of characters.
      *
-     * @param  [type]              $length
-     * @param  string              $message
+     * @param int $length Maximum length
+     * @param string $message Error message on failure
      * @return ValidationInterface
      */
     public function max($length, string $message = 'Too many characters specified'): ValidationInterface
@@ -263,12 +189,10 @@ class Validation implements ValidationInterface
     }
 
     /**
-     * Compares the equivalence of $verifiable and $this->verifiable values
-     * --------------------------------------------------------------------
-     * Сравнивает эквивалентность значений $verifiable и $this->verifiable
+     * Validates that two values are equal.
      *
-     * @param  [type]              $verifiable
-     * @param  string              $message
+     * @param mixed $verifiable Value to compare with
+     * @param string $message Error message on failure
      * @return ValidationInterface
      */
     public function equals($verifiable, string $message = 'Values ​​do not match'): ValidationInterface
@@ -277,44 +201,30 @@ class Validation implements ValidationInterface
     }
 
     /**
-     * Cross-Site Request Forgery Protection
-     * --------------------------------------
-     * Защита от межсайтовой подделки запроса
+     * Validates against CSRF attacks.
      *
-     * @param  array               $csrfSession
-     * @param  string              $message
+     * @param array $csrfSession List of valid tokens
+     * @param string $message Error message on failure
      * @return ValidationInterface
      */
-    public function csrf(array $csrfSession, $message = 'csrf'): ValidationInterface
+    public function csrf(array $csrfSession, $message = 'Invalid CSRF token'): ValidationInterface
     {
         return $this->validate(in_array($this->verifiable, $csrfSession), $message);
     }
 
-
     /**
-     * Set status and error message if validation fails
-     * ---------------------------------------------------------------------
-     * Устанавливает статус и сообщение об ошибке, если проверка не пройдена
+     * Internal validation logic for setting status and error message.
      *
-     * @param  boolean             $bool
-     * @param  string              $message
+     * @param bool $bool Validation result
+     * @param string $message Error message on failure
      * @return ValidationInterface
      */
     private function validate(bool $bool, string $message): ValidationInterface
     {
-        /*
-        | If one of the previous checks in the chain did not pass further, we do not check
-        | --------------------------------------------------------------------------------
-        | Если одна из предыдущих проверок в цепочке не прошла, дальше не проверяем
-        */
-        if (!$this->checked) {
-            return $this;
-        }
+        if (!$this->checked) return $this;
 
-        if (!$bool) {
-            $this->checked = $bool;
-            $this->message = $message;
-        }
+        $this->checked = $bool;
+        $this->message = !$bool ? $message : null;
 
         return $this;
     }

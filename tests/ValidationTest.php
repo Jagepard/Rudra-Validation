@@ -3,8 +3,8 @@
 declare(strict_types=1);
 
 /**
- * @author    : Jagepard <jagepard@yandex.ru">
- * @license   https://mit-license.org/ MIT
+ * @author  : Jagepard <jagepard@yandex.ru">
+ * @license https://mit-license.org/ MIT
  */
 
 namespace Rudra\Validation\Tests;
@@ -135,7 +135,7 @@ class ValidationTest extends PHPUnit_Framework_TestCase
 
         $checked = ValidationFacade::set('123')->csrf($_SESSION['csrf_token'])->run();
         $this->assertFalse($checked[0]);
-        $this->assertEquals('csrf', $checked[1]);
+        $this->assertEquals('Invalid CSRF token', $checked[1]);
     }
 
     public function testApprove(): void
