@@ -1,43 +1,51 @@
 {
-    "name"        : "rudra/validation",
-    "description" : "Rudra framework",
-    "type"        : "library",
-    "keywords"    : [
+    "name": "rudra/validation",
+    "description": "Rudra framework",
+    "type": "library",
+    "keywords": [
         "rudra",
         "validation",
         "validation-library",
         "validator"
     ],
-    "license"     : "MIT",
-    "authors"     : [
+    "license": "MIT",
+    "authors": [
         {
-            "name"    : "Jagepard",
-            "email"   : "jagepard@yandex.ru",
+            "name": "Jagepard",
+            "email": "jagepard@yandex.ru",
             "homepage": "https://jagepard.ru",
-            "role"    : "Developer"
+            "role": "Developer"
         }
     ],
-    "support"     : {
+    "support": {
         "email": "jagepard@yandex.ru",
-        "skype": "jagepard.ru"
+        "issues": "https://github.com/Jagepard/Rudra-Validation/issues",    
+        "source": "https://github.com/Jagepard/Rudra-Validation"    
     },
-    "require"     : {
-        "php": ">=7.4",
-        "rudra/container" : "self.version"
+    "require": {
+        "php": ">=8.3",
+        "rudra/container": "self.version"
     },
-    "autoload"         : {
+    "autoload": {
         "psr-4": {
             "Rudra\\Validation\\": "src/"
         }
     },
-    "autoload-dev"     : {
+    "autoload-dev": {
         "psr-4": {
             "Rudra\\Validation\\Tests\\": "tests/"
         }
     },
     "minimum-stability": "dev",
-    "config"            : {
-        "optimize-autoloader" : true,
-        "prefer-stable"       : true
+    "prefer-stable": true,
+    "config": {
+        "optimize-autoloader": true,
+        "sort-packages": true,
+        "platform-check": false
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.0.x-dev"
+        }
     }
 }
