@@ -28,7 +28,7 @@ $processed = [
     'csrf'     => ValidationFacade::set('123456')->csrf($_SESSION['csrf'])->run();
 ];
 ```
-Data is validated in a chain
+Data is validated in a chain\
 Данные проверяются по цепочке
 ### For example / Например
 ```php
@@ -42,12 +42,12 @@ if (ValidationFacade::approve($processed)) {
 }
 ```
 ##### getValidated
-Gets an array of validated data excluding the keys ["csrf", "_method"]
+Gets an array of validated data excluding the keys ["csrf", "_method"]\
 Получает массив проверенных данных исключая ключи ["csrf", "_method"]
 ### Get all error messages / Получить все сообщения об ошибках
 ```php
 ValidationFacade::getAlerts($processed, ['required']);
 ```
 ##### getAlerts
-Gets an array with error messages excluding the keys ['required']
+Gets an array with error messages excluding the keys ['required']\
 Получает массив с сообщениями об ошибках исключая ключи ['required']

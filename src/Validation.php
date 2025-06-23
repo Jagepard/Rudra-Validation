@@ -12,9 +12,18 @@ namespace Rudra\Validation;
 class Validation implements ValidationInterface
 {
     private $verifiable;
+    private bool $checked = true;
     private ?string $message = null;
-    private bool $checked    = true;
 
+    /**
+     * Returns the result of the check as an array.
+     * The first element is a flag indicating the success of the check, the second is an error message (or null).
+     * Resets the internal state: clears the message and marks the check as completed.
+     * -------------------------------------------------------------------------------
+     * Возвращает результат проверки в виде массива.
+     * Первый элемент — флаг успешности проверки, второй — сообщение об ошибке (или null).
+     * Сбрасывает внутреннее состояние: очищает сообщение и помечает проверку как выполненную.
+     */
     public function run(): array
     {
         $checked = ($this->checked) ? [$this->verifiable, null] : [false, $this->message];
@@ -25,6 +34,13 @@ class Validation implements ValidationInterface
         return $checked;
     }
 
+    /**
+     * Checks an array of results for errors.
+     * Returns true if all elements are successful (the first value in each subarray === true).
+     * ----------------------------------------------------------------------------------------
+     * Проверяет массив результатов на наличие ошибок.
+     * Возвращает true, если все элементы успешны (первое значение в каждом подмассиве === true).
+     */
     public function approve(array $data): bool
     {
         foreach ($data as $item) {
@@ -36,6 +52,13 @@ class Validation implements ValidationInterface
         return true;
     }
 
+    /**
+     * Extracts the results of the check (true/false) from the data array and returns them in a clean form.
+     * Excludes the specified keys if they are passed.
+     * -----------------------------------------------
+     * Извлекает результаты проверки (true/false) из массива данных и возвращает их в чистом виде.
+     * Исключает указанные ключи, если они переданы.
+     */
     public function getValidated(array $data, array $excludedKeys = []): array
     {
         $checked = [];
@@ -47,6 +70,15 @@ class Validation implements ValidationInterface
         return $this->removeExcluded($checked, $excludedKeys);
     }
 
+    /**
+     * Extracts messages (such as errors or warnings) from the check data.
+     * Returns an associative array: field keys => corresponding messages.
+     * Excludes the specified keys if they are passed.
+     * -----------------------------------------------
+     * Извлекает сообщения (например, ошибки или предупреждения) из данных проверки.
+     * Возвращает ассоциативный массив: ключ поле => соответствующeе сообщениe.
+     * Исключает указанные ключи, если они переданы.
+     */
     public function getAlerts(array $data, array $excludedKeys = []): array
     {
         $alerts = [];
@@ -60,6 +92,11 @@ class Validation implements ValidationInterface
         return $this->removeExcluded($alerts, $excludedKeys);
     }
 
+    /**
+     * Removes the specified keys from the array and returns the cleaned array.
+     * ------------------------------------------------------------------------
+     * Удаляет указанные ключи из массива и возвращает очищенный массив.
+     */
     private function removeExcluded(array $inputArray, array $excludedKeys): array
     {
         foreach ($excludedKeys as $key) {
@@ -69,13 +106,25 @@ class Validation implements ValidationInterface
         return $inputArray;
     }
 
-    public function set($verifiable): ValidationInterface
+    /**
+     * Sets the value to be checked (validated).
+     * -----------------------------------------
+     * Устанавливает значение, которое будет проверяться (валидироваться).
+     */
+    public function set(mixed $verifiable): ValidationInterface
     {
         $this->verifiable = $verifiable;
 
         return $this;
     }
 
+    /**
+     * Cleans the input string from HTML tags (with the option to allow certain tags)
+     * and saves the result for further checking.
+     * ------------------------------------------
+     * Очищает входную строку от HTML-тегов (с возможностью разрешить определённые теги)
+     * и сохраняет результат для дальнейшей проверки.
+     */
     public function sanitize(string $verifiable, array|string|null $allowableTags = null): ValidationInterface
     {
         $this->set(strip_tags(trim($verifiable), $allowableTags));
@@ -83,6 +132,13 @@ class Validation implements ValidationInterface
         return $this;
     }
 
+    /**
+     * Checks if the specified string is a valid email address.
+     * Saves the result of the check and sets an error message if the email is invalid.
+     * --------------------------------------------------------------------------------
+     * Проверяет, является ли указанная строка корректным email-адресом.
+     * Сохраняет результат проверки и устанавливает сообщение об ошибке, если email некорректен.
+     */
     public function email(string $verifiable, string $message = 'Email is invalid'): ValidationInterface
     {
         $this->set(filter_var($verifiable, FILTER_VALIDATE_EMAIL));
@@ -90,36 +146,85 @@ class Validation implements ValidationInterface
         return $this->validate($this->verifiable ? true : false, $message);
     }
 
+    /**
+     * Checks if the field is filled (not an empty string).
+     * If the value is missing or consists of spaces — sets the specified error message.
+     * ---------------------------------------------------------------------------------
+     * Проверяет, заполнено ли поле (не пустая строка).
+     * Если значение отсутствует или состоит из пробелов — устанавливает указанное сообщение об ошибке.
+     */
     public function required(string $message = 'You must fill in the field'): ValidationInterface
     {
         return $this->validate((mb_strlen($this->verifiable) > 0), $message);
     }
 
+    /**
+     * Checks if the current value is a number (integer or floating point).
+     * Sets the specified error message if the check fails.
+     * ----------------------------------------------------
+     * Проверяет, является ли текущее значение числом (целым или с плавающей точкой).
+     * Устанавливает указанное сообщение об ошибке, если проверка не пройдена.
+     */
     public function integer(string $message = 'Number is required'): ValidationInterface
     {
         return $this->validate(is_numeric($this->verifiable), $message);
     }
 
-    public function min($length, string $message = 'Too few characters specified'): ValidationInterface
+    /**
+     * Checks that the string length is not less than the specified value.
+     * Sets an error message if the check fails.
+     * -----------------------------------------
+     * Проверяет, что длина строки не меньше указанного значения.
+     * Устанавливает сообщение об ошибке, если проверка не пройдена.
+     */
+    public function min(int $length, string $message = 'Too few characters specified'): ValidationInterface
     {
         return $this->validate((mb_strlen($this->verifiable) >= $length), $message);
     }
 
-    public function max($length, string $message = 'Too many characters specified'): ValidationInterface
+    /**
+     * Checks that the string length does not exceed the specified value.
+     * Sets an error message if the check fails.
+     * -----------------------------------------
+     * Проверяет, что длина строки не превышает указанного значения.
+     * Устанавливает сообщение об ошибке, если проверка не пройдена.
+     */
+    public function max(int $length, string $message = 'Too many characters specified'): ValidationInterface
     {
         return $this->validate((mb_strlen($this->verifiable) <= $length), $message);
     }
 
-    public function equals($verifiable, string $message = 'Values ​​do not match'): ValidationInterface
+    /**
+     * Checks if the current value matches the specified one.
+     * Uses strict comparison (===).
+     * -----------------------------
+     * Проверяет, совпадает ли текущее значение с указанным.
+     * Использует строгое сравнение (===).
+     */
+    public function equals(mixed $verifiable, string $message = 'Values ​​do not match'): ValidationInterface
     {
         return $this->validate(($this->verifiable === $verifiable), $message);
     }
 
-    public function csrf(array $csrfSession, $message = 'Invalid CSRF token'): ValidationInterface
+    /**
+     * Checks if the current value is contained in the array of valid CSRF tokens.
+     * Used for protection against cross-site request forgery (CSRF).
+     * --------------------------------------------------------------
+     * Проверяет, содержится ли текущее значение в массиве допустимых CSRF-токенов.
+     * Используется для защиты от межсайтовой подделки запросов (CSRF).
+     */
+    public function csrf(array $csrfSession, string $message = 'Invalid CSRF token'): ValidationInterface
     {
         return $this->validate(in_array($this->verifiable, $csrfSession), $message);
     }
 
+    /**
+     * Performs a condition check and saves the validation result.
+     * If the check fails, sets an error message.
+     * ------------------------------------------
+     * Выполняет проверку условия и сохраняет результат валидации.
+     * Если проверка не пройдена, устанавливает сообщение об ошибке.
+     */
     private function validate(bool $bool, string $message): ValidationInterface
     {
         if (!$this->checked) return $this;
