@@ -79,6 +79,20 @@ class Validation implements ValidationInterface
      * Возвращает ассоциативный массив: ключ поле => соответствующeе сообщениe.
      * Исключает указанные ключи, если они переданы.
      */
+    public function getErrors(array $data, array $excludedKeys = []): array
+    {
+        $errors = [];
+        foreach ($data as $key => $value) {
+            if (isset($value[1])) {
+                $errors[$key] = $value[1];
+            }
+        }
+        return $this->removeExcluded($errors, $excludedKeys);
+    }
+
+    /**
+     * @deprecated Use getErrors() instead
+     */
     public function getAlerts(array $data, array $excludedKeys = []): array
     {
         $alerts = [];
@@ -159,11 +173,7 @@ class Validation implements ValidationInterface
     }
 
     /**
-     * Checks if the current value is a number (integer or floating point).
-     * Sets the specified error message if the check fails.
-     * --------------------
-     * Проверяет, является ли текущее значение числом (целым или с плавающей точкой).
-     * Устанавливает указанное сообщение об ошибке, если проверка не пройдена.
+     * @deprecated Use numeric() instead
      */
     public function integer(string $message = 'Number is required'): ValidationInterface
     {
@@ -216,6 +226,113 @@ class Validation implements ValidationInterface
     public function csrf(array $csrfSession, string $message = 'Invalid CSRF token'): ValidationInterface
     {
         return $this->validate(in_array($this->verifiable, $csrfSession), $message);
+    }
+
+    /**
+     * Checks if the current value is a valid URL.
+     * Sets the specified error message if the check fails.
+     * --------------------
+     * Проверяет, является ли текущее значение корректным URL-адресом.
+     * Устанавливает указанное сообщение об ошибке, если проверка не пройдена.
+     */
+    public function url(string $message = 'Invalid URL'): ValidationInterface
+    {
+        $isValid = filter_var($this->verifiable, FILTER_VALIDATE_URL) !== false;
+        return $this->validate($isValid, $message);
+    }
+
+    /**
+     * Checks if the current value is numeric (integer or floating-point number).
+     * Sets the specified error message if the check fails.
+     * --------------------
+     * Проверяет, является ли текущее значение числовым (целым или числом с плавающей точкой).
+     * Устанавливает указанное сообщение об ошибке, если проверка не пройдена.
+     */
+    public function numeric(string $message = 'Must be a number'): ValidationInterface
+    {
+        return $this->validate(is_numeric($this->verifiable), $message);
+    }
+
+    /**
+     * Checks if the current value is a valid integer (not a float or string representation of a float).
+     * Sets the specified error message if the check fails.
+     * --------------------
+     * Проверяет, является ли текущее значение корректным целым числом (а не дробным или строкой с плавающей точкой).
+     * Устанавливает указанное сообщение об ошибке, если проверка не пройдена.
+     */
+    public function integerOnly(string $message = 'Must be an integer'): ValidationInterface
+    {
+        return $this->validate(
+            is_numeric($this->verifiable) && (filter_var($this->verifiable, FILTER_VALIDATE_INT) !== false),
+            $message
+        );
+    }
+
+    /**
+     * Checks that the numeric value is within the specified range (inclusive).
+     * Sets the specified error message if the value is outside the range or not numeric.
+     * --------------------
+     * Проверяет, что числовое значение находится в пределах заданного диапазона (включительно).
+     * Устанавливает указанное сообщение об ошибке, если значение выходит за пределы диапазона или не является числом.
+     */
+    public function between(int|float $min, int|float $max, string $message = 'Value out of range'): ValidationInterface
+    {
+        if (!is_numeric($this->verifiable)) {
+            return $this->validate(false, $message);
+        }
+        $val = (float)$this->verifiable;
+        return $this->validate($val >= $min && $val <= $max, $message);
+    }
+
+    /**
+     * Checks if the current value matches the specified regular expression pattern.
+     * Sets the specified error message if the pattern does not match.
+     * --------------------
+     * Проверяет, соответствует ли текущее значение заданному регулярному выражению.
+     * Устанавливает указанное сообщение об ошибке, если шаблон не совпадает.
+     */
+    public function regex(string $pattern, string $message = 'Invalid format'): ValidationInterface
+    {
+        return $this->validate(preg_match($pattern, $this->verifiable) === 1, $message);
+    }
+
+    /**
+     * Checks if the current value is a valid date in the specified format.
+     * Uses strict comparison to avoid ambiguous date interpretations.
+     * Sets the specified error message if the date is invalid.
+     * --------------------
+     * Проверяет, является ли текущее значение корректной датой в указанном формате.
+     * Использует строгое сравнение, чтобы избежать неоднозначной интерпретации дат.
+     * Устанавливает указанное сообщение об ошибке, если дата некорректна.
+     */
+    public function date(string $format = 'Y-m-d', string $message = 'Invalid date'): ValidationInterface
+    {
+        $d = \DateTime::createFromFormat($format, $this->verifiable);
+        return $this->validate($d && $d->format($format) === $this->verifiable, $message);
+    }
+
+    /**
+     * Performs a custom validation using a user-defined callback function.
+     * The callback receives the current value and must return true or false.
+     * Sets the specified error message if the callback returns false.
+     * --------------------
+     * Выполняет кастомную валидацию с использованием пользовательской функции-колбэка.
+     * Колбэк получает текущее значение и должен вернуть true или false.
+     * Устанавливает указанное сообщение об ошибке, если колбэк возвращает false.
+     */
+    public function custom(callable $callback, string $message = 'Validation failed'): ValidationInterface
+    {
+        return $this->validate($callback($this->verifiable), $message);
+    }
+
+    /**
+     * Checks if the current value is in the allowed list.
+     * --------------------
+     * Проверяет, содержится ли текущее значение в разрешённом списке.
+     */
+    public function in(array $allowed, string $message = 'Invalid value selected'): ValidationInterface
+    {
+        return $this->validate(in_array($this->verifiable, $allowed, true), $message);
     }
 
     /**
