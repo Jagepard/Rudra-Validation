@@ -91,22 +91,6 @@ class Validation implements ValidationInterface
     }
 
     /**
-     * @deprecated Use getErrors() instead
-     */
-    public function getAlerts(array $data, array $excludedKeys = []): array
-    {
-        $alerts = [];
-
-        foreach ($data as $key => $value) {
-            if (isset($value[1])) {
-                $alerts[$key] = $value[1];
-            }
-        }
-
-        return $this->removeExcluded($alerts, $excludedKeys);
-    }
-
-    /**
      * Removes the specified keys from the array and returns the cleaned array.
      * --------------------
      * Удаляет указанные ключи из массива и возвращает очищенный массив.
@@ -153,7 +137,7 @@ class Validation implements ValidationInterface
      * Проверяет, является ли указанная строка корректным email-адресом.
      * Сохраняет результат проверки и устанавливает сообщение об ошибке, если email некорректен.
      */
-    public function email(string $verifiable, string $message = 'Email is invalid'): ValidationInterface
+    public function email(string $verifiable, string $message = 'Email указан неверно'): ValidationInterface
     {
         $this->set(filter_var($verifiable, FILTER_VALIDATE_EMAIL));
 
@@ -167,17 +151,9 @@ class Validation implements ValidationInterface
      * Проверяет, заполнено ли поле (не пустая строка).
      * Если значение отсутствует или состоит из пробелов — устанавливает указанное сообщение об ошибке.
      */
-    public function required(string $message = 'You must fill in the field'): ValidationInterface
+    public function required(string $message = 'Поле должно быть заполнено'): ValidationInterface
     {
         return $this->validate((mb_strlen($this->verifiable) > 0), $message);
-    }
-
-    /**
-     * @deprecated Use numeric() instead
-     */
-    public function integer(string $message = 'Number is required'): ValidationInterface
-    {
-        return $this->validate(is_numeric($this->verifiable), $message);
     }
 
     /**
@@ -187,7 +163,7 @@ class Validation implements ValidationInterface
      * Проверяет, что длина строки не меньше указанного значения.
      * Устанавливает сообщение об ошибке, если проверка не пройдена.
      */
-    public function min(int $length, string $message = 'Too few characters specified'): ValidationInterface
+    public function min(int $length, string $message = 'Слишком мало символов'): ValidationInterface
     {
         return $this->validate((mb_strlen($this->verifiable) >= $length), $message);
     }
@@ -199,7 +175,7 @@ class Validation implements ValidationInterface
      * Проверяет, что длина строки не превышает указанного значения.
      * Устанавливает сообщение об ошибке, если проверка не пройдена.
      */
-    public function max(int $length, string $message = 'Too many characters specified'): ValidationInterface
+    public function max(int $length, string $message = 'Слишком много символов'): ValidationInterface
     {
         return $this->validate((mb_strlen($this->verifiable) <= $length), $message);
     }
@@ -211,7 +187,7 @@ class Validation implements ValidationInterface
      * Проверяет, совпадает ли текущее значение с указанным.
      * Использует строгое сравнение.
      */
-    public function equals(mixed $verifiable, string $message = 'Values ​​do not match'): ValidationInterface
+    public function equals(mixed $verifiable, string $message = 'Значение не совпадает'): ValidationInterface
     {
         return $this->validate(($this->verifiable === $verifiable), $message);
     }
@@ -235,7 +211,7 @@ class Validation implements ValidationInterface
      * Проверяет, является ли текущее значение корректным URL-адресом.
      * Устанавливает указанное сообщение об ошибке, если проверка не пройдена.
      */
-    public function url(string $message = 'Invalid URL'): ValidationInterface
+    public function url(string $message = 'Некорректный URL-адрес'): ValidationInterface
     {
         $isValid = filter_var($this->verifiable, FILTER_VALIDATE_URL) !== false;
         return $this->validate($isValid, $message);
@@ -248,7 +224,7 @@ class Validation implements ValidationInterface
      * Проверяет, является ли текущее значение числовым (целым или числом с плавающей точкой).
      * Устанавливает указанное сообщение об ошибке, если проверка не пройдена.
      */
-    public function numeric(string $message = 'Must be a number'): ValidationInterface
+    public function numeric(string $message = 'Требуется числовое значение'): ValidationInterface
     {
         return $this->validate(is_numeric($this->verifiable), $message);
     }
@@ -260,7 +236,7 @@ class Validation implements ValidationInterface
      * Проверяет, является ли текущее значение корректным целым числом (а не дробным или строкой с плавающей точкой).
      * Устанавливает указанное сообщение об ошибке, если проверка не пройдена.
      */
-    public function integerOnly(string $message = 'Must be an integer'): ValidationInterface
+    public function integer(string $message = 'Укажите целое число'): ValidationInterface
     {
         return $this->validate(
             is_numeric($this->verifiable) && (filter_var($this->verifiable, FILTER_VALIDATE_INT) !== false),
@@ -275,7 +251,7 @@ class Validation implements ValidationInterface
      * Проверяет, что числовое значение находится в пределах заданного диапазона (включительно).
      * Устанавливает указанное сообщение об ошибке, если значение выходит за пределы диапазона или не является числом.
      */
-    public function between(int|float $min, int|float $max, string $message = 'Value out of range'): ValidationInterface
+    public function between(int|float $min, int|float $max, string $message = 'Значение выходит за пределы диапазона'): ValidationInterface
     {
         if (!is_numeric($this->verifiable)) {
             return $this->validate(false, $message);
@@ -291,7 +267,7 @@ class Validation implements ValidationInterface
      * Проверяет, соответствует ли текущее значение заданному регулярному выражению.
      * Устанавливает указанное сообщение об ошибке, если шаблон не совпадает.
      */
-    public function regex(string $pattern, string $message = 'Invalid format'): ValidationInterface
+    public function regex(string $pattern, string $message = 'Неверный формат'): ValidationInterface
     {
         return $this->validate(preg_match($pattern, $this->verifiable) === 1, $message);
     }
@@ -305,7 +281,7 @@ class Validation implements ValidationInterface
      * Использует строгое сравнение, чтобы избежать неоднозначной интерпретации дат.
      * Устанавливает указанное сообщение об ошибке, если дата некорректна.
      */
-    public function date(string $format = 'Y-m-d', string $message = 'Invalid date'): ValidationInterface
+    public function date(string $format = 'Y-m-d', string $message = 'Дата указана неверно'): ValidationInterface
     {
         $d = \DateTime::createFromFormat($format, $this->verifiable);
         return $this->validate($d && $d->format($format) === $this->verifiable, $message);
@@ -320,7 +296,7 @@ class Validation implements ValidationInterface
      * Колбэк получает текущее значение и должен вернуть true или false.
      * Устанавливает указанное сообщение об ошибке, если колбэк возвращает false.
      */
-    public function custom(callable $callback, string $message = 'Validation failed'): ValidationInterface
+    public function custom(callable $callback, string $message = 'Ошибка валидации'): ValidationInterface
     {
         return $this->validate($callback($this->verifiable), $message);
     }
@@ -330,7 +306,7 @@ class Validation implements ValidationInterface
      * --------------------
      * Проверяет, содержится ли текущее значение в разрешённом списке.
      */
-    public function in(array $allowed, string $message = 'Invalid value selected'): ValidationInterface
+    public function in(array $allowed, string $message = 'Выбрано неверное значение'): ValidationInterface
     {
         return $this->validate(in_array($this->verifiable, $allowed, true), $message);
     }
