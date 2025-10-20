@@ -40,17 +40,28 @@ interface ValidationInterface
      */
     public function getValidated(array $data, array $excludedKeys = []): array;
 
-
     /**
-     * Extracts messages (such as errors or warnings) from the check data.
-     * Returns an associative array: field keys => corresponding messages.
-     * Excludes the specified keys if they are passed.
+     * Extracts error messages from validation data.
+     * Returns an associative array where the key is the field name,
+     * and the value is an array containing the error message and the field alias.
      * --------------------
-     * Извлекает сообщения (например, ошибки или предупреждения) из данных проверки.
-     * Возвращает ассоциативный массив: ключ поле => соответствующeе сообщениe.
-     * Исключает указанные ключи, если они переданы.
+     * Извлекает сообщения об ошибках из данных валидации.
+     * Возвращает ассоциативный массив, где ключ - это имя поля,
+     * а значение - массив с сообщением об ошибке и алиасом поля.
      */
     public function getErrors(array $data, array $excludedKeys = []): array;
+
+        /**
+     * Устанавливает алиасы для полей, используемых в валидации.
+     * Алиасы применяются в методе getErrors для формирования человекочитаемых имён полей в сообщениях об ошибках.
+     * --------------------
+     * Sets aliases for fields used in validation.
+     * Aliases are applied in the getErrors method to form human-readable field names in error messages.
+     *
+     * @param array
+     * @return void
+     */
+    public function setAliases(array $aliases): void;
 
     /**
      * Sets the value to be checked (validated).
