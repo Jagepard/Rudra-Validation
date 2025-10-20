@@ -14,6 +14,7 @@ class Validation implements ValidationInterface
     private $verifiable;
     private bool $checked = true;
     private ?string $message = null;
+    private array $aliases = [];
 
     /**
      * Returns the result of the check as an array.
@@ -71,20 +72,44 @@ class Validation implements ValidationInterface
     }
 
     /**
-     * Extracts messages (such as errors or warnings) from the check data.
-     * Returns an associative array: field keys => corresponding messages.
-     * Excludes the specified keys if they are passed.
+     * Устанавливает алиасы для полей, используемых в валидации.
+     * Алиасы применяются в методе getErrors для формирования человекочитаемых имён полей в сообщениях об ошибках.
      * --------------------
-     * Извлекает сообщения (например, ошибки или предупреждения) из данных проверки.
-     * Возвращает ассоциативный массив: ключ поле => соответствующeе сообщениe.
-     * Исключает указанные ключи, если они переданы.
+     * Sets aliases for fields used in validation.
+     * Aliases are applied in the getErrors method to form human-readable field names in error messages.
+     *
+     * @param array
+     * @return void
+     */
+    public function setAliases(array $aliases): void
+    {
+        $this->aliases = $aliases;
+    }
+
+    /**
+     * Extracts error messages from validation data.
+     * Returns an associative array where the key is the field name,
+     * and the value is an array containing the error message and the field alias.
+     * --------------------
+     * Извлекает сообщения об ошибках из данных валидации.
+     * Возвращает ассоциативный массив, где ключ - это имя поля,
+     * а значение - массив с сообщением об ошибке и алиасом поля.
+     *
+     * @param  array $data
+     * @param  array $excludedKeys
+     * @return array
      */
     public function getErrors(array $data, array $excludedKeys = []): array
     {
         $errors = [];
         foreach ($data as $key => $value) {
             if (isset($value[1])) {
-                $errors[$key] = $value[1];
+                $alias = $this->aliases[$key] ?? $key;
+                // Возвращаем ассоциативный массив
+                $errors[$key] = [
+                    'msg'   => $value[1], // Оригинальное сообщение
+                    'alias' => $alias     // Алиас поля
+                ];
             }
         }
         return $this->removeExcluded($errors, $excludedKeys);
