@@ -50,7 +50,7 @@ interface ValidationInterface
      * Возвращает ассоциативный массив: ключ поле => соответствующeе сообщениe.
      * Исключает указанные ключи, если они переданы.
      */
-    public function getAlerts(array $data, array $excludedKeys = []): array;
+    public function getErrors(array $data, array $excludedKeys = []): array;
 
     /**
      * Sets the value to be checked (validated).
@@ -75,7 +75,7 @@ interface ValidationInterface
      * Проверяет, является ли указанная строка корректным email-адресом.
      * Сохраняет результат проверки и устанавливает сообщение об ошибке, если email некорректен.
      */
-    public function email(string $verifiable, string $message = 'Email is invalid'): ValidationInterface;
+    public function email(string $verifiable, string $message = 'Email указан неверно'): ValidationInterface;
 
     /**
      * Checks if the field is filled (not an empty string).
@@ -84,16 +84,7 @@ interface ValidationInterface
      * Проверяет, заполнено ли поле (не пустая строка).
      * Если значение отсутствует или состоит из пробелов — устанавливает указанное сообщение об ошибке.
      */
-    public function required(string $message = 'You must fill in the field'): ValidationInterface;
-
-    /**
-     * Checks if the current value is a number (integer or floating point).
-     * Sets the specified error message if the check fails.
-     * --------------------
-     * Проверяет, является ли текущее значение числом (целым или с плавающей точкой).
-     * Устанавливает указанное сообщение об ошибке, если проверка не пройдена.
-     */
-    public function integer(string $message = 'Number is required'): ValidationInterface;
+    public function required(string $message = 'Поле должно быть заполнено'): ValidationInterface;
 
     /**
      * Checks that the string length is not less than the specified value.
@@ -102,7 +93,7 @@ interface ValidationInterface
      * Проверяет, что длина строки не меньше указанного значения.
      * Устанавливает сообщение об ошибке, если проверка не пройдена.
      */
-    public function min(int $length, string $message = 'Too few characters specified'): ValidationInterface;
+    public function min(int $length, string $message = 'Слишком мало символов'): ValidationInterface;
 
     /**
      * Checks that the string length does not exceed the specified value.
@@ -111,7 +102,7 @@ interface ValidationInterface
      * Проверяет, что длина строки не превышает указанного значения.
      * Устанавливает сообщение об ошибке, если проверка не пройдена.
      */
-    public function max(int $length, string $message = 'Too many characters specified'): ValidationInterface;
+    public function max(int $length, string $message = 'Слишком много символов'): ValidationInterface;
 
     /**
      * Checks if the current value matches the specified one.
@@ -120,7 +111,7 @@ interface ValidationInterface
      * Проверяет, совпадает ли текущее значение с указанным.
      * Использует строгое сравнение.
      */
-    public function equals(mixed $verifiable, string $message = 'Values ​​do not match'): ValidationInterface;
+    public function equals(mixed $verifiable, string $message = 'Значение не совпадает'): ValidationInterface;
     
     /**
      * Checks if the current value is contained in the array of valid CSRF tokens.
@@ -138,7 +129,7 @@ interface ValidationInterface
      * Проверяет, является ли текущее значение корректным URL-адресом.
      * Устанавливает указанное сообщение об ошибке, если проверка не пройдена.
      */
-    public function url(string $message = 'Invalid URL'): ValidationInterface;
+    public function url(string $message = 'Некорректный URL-адрес'): ValidationInterface;
 
     /**
      * Checks if the current value is numeric (integer or floating-point number).
@@ -147,7 +138,7 @@ interface ValidationInterface
      * Проверяет, является ли текущее значение числовым (целым или числом с плавающей точкой).
      * Устанавливает указанное сообщение об ошибке, если проверка не пройдена.
      */
-    public function numeric(string $message = 'Must be a number'): ValidationInterface;
+    public function numeric(string $message = 'Требуется числовое значение'): ValidationInterface;
 
     /**
      * Checks if the current value is a valid integer (not a float or string representation of a float).
@@ -156,7 +147,7 @@ interface ValidationInterface
      * Проверяет, является ли текущее значение корректным целым числом (а не дробным или строкой с плавающей точкой).
      * Устанавливает указанное сообщение об ошибке, если проверка не пройдена.
      */
-    public function integerOnly(string $message = 'Must be an integer'): ValidationInterface;
+    public function integer(string $message = 'Укажите целое число'): ValidationInterface;
 
     /**
      * Checks that the numeric value is within the specified range (inclusive).
@@ -165,7 +156,7 @@ interface ValidationInterface
      * Проверяет, что числовое значение находится в пределах заданного диапазона (включительно).
      * Устанавливает указанное сообщение об ошибке, если значение выходит за пределы диапазона или не является числом.
      */
-    public function between(int|float $min, int|float $max, string $message = 'Value out of range'): ValidationInterface;
+    public function between(int|float $min, int|float $max, string $message = 'Значение выходит за пределы диапазона'): ValidationInterface;
 
     /**
      * Checks if the current value matches the specified regular expression pattern.
@@ -174,7 +165,7 @@ interface ValidationInterface
      * Проверяет, соответствует ли текущее значение заданному регулярному выражению.
      * Устанавливает указанное сообщение об ошибке, если шаблон не совпадает.
      */
-    public function regex(string $pattern, string $message = 'Invalid format'): ValidationInterface;
+    public function regex(string $pattern, string $message = 'Неверный формат'): ValidationInterface;
 
     /**
      * Checks if the current value is a valid date in the specified format.
@@ -185,7 +176,7 @@ interface ValidationInterface
      * Использует строгое сравнение, чтобы избежать неоднозначной интерпретации дат.
      * Устанавливает указанное сообщение об ошибке, если дата некорректна.
      */
-    public function date(string $format = 'Y-m-d', string $message = 'Invalid date'): ValidationInterface;
+    public function date(string $format = 'Y-m-d', string $message = 'Дата указана неверно'): ValidationInterface;
 
     /**
      * Performs a custom validation using a user-defined callback function.
@@ -196,12 +187,12 @@ interface ValidationInterface
      * Колбэк получает текущее значение и должен вернуть true или false.
      * Устанавливает указанное сообщение об ошибке, если колбэк возвращает false.
      */
-    public function custom(callable $callback, string $message = 'Validation failed'): ValidationInterface;
+    public function custom(callable $callback, string $message = 'Ошибка валидации'): ValidationInterface;
 
     /**
      * Checks if the current value is in the allowed list.
      * --------------------
      * Проверяет, содержится ли текущее значение в разрешённом списке.
      */
-    public function in(array $allowed, string $message = 'Invalid value selected'): ValidationInterface;
+    public function in(array $allowed, string $message = 'Выбрано неверное значение'): ValidationInterface;
 }

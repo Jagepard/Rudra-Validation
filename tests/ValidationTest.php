@@ -44,25 +44,14 @@ class ValidationTest extends PHPUnit_Framework_TestCase
     {
         $checked = ValidationFacade::set('')->required()->run();
         $this->assertFalse($checked[0]);
-        $this->assertEquals('You must fill in the field', $checked[1]);
+        $this->assertEquals('Поле должно быть заполнено', $checked[1]);
 
         $checked = ValidationFacade::set('')->integer()->required()->run();
         $this->assertFalse($checked[0]);
-        $this->assertEquals('Number is required', $checked[1]);
+        $this->assertEquals('Укажите целое число', $checked[1]);
 
         $checked = ValidationFacade::set('String')->required()->run();
         $this->assertEquals('String', $checked[0]);
-        $this->assertNull($checked[1]);
-    }
-
-    public function testInteger(): void
-    {
-        $checked = ValidationFacade::set('')->required()->integer()->run();
-        $this->assertFalse($checked[0]);
-        $this->assertEquals('You must fill in the field', $checked[1]);
-
-        $checked = ValidationFacade::set('123')->integer()->run();
-        $this->assertEquals('123', $checked[0]);
         $this->assertNull($checked[1]);
     }
 
@@ -70,33 +59,33 @@ class ValidationTest extends PHPUnit_Framework_TestCase
     {
         $checked = ValidationFacade::set('')->required()->numeric()->run();
         $this->assertFalse($checked[0]);
-        $this->assertEquals('You must fill in the field', $checked[1]);
+        $this->assertEquals('Поле должно быть заполнено', $checked[1]);
 
         $checked = ValidationFacade::set('123')->numeric()->run();
         $this->assertEquals('123', $checked[0]);
         $this->assertNull($checked[1]);
     }
 
-    public function testIntegerOnly(): void
+    public function testInteger(): void
     {
-        $checked = ValidationFacade::set('')->required()->integerOnly()->run();
+        $checked = ValidationFacade::set('')->required()->integer()->run();
         $this->assertFalse($checked[0]);
-        $this->assertEquals('You must fill in the field', $checked[1]);
+        $this->assertEquals('Поле должно быть заполнено', $checked[1]);
 
-        $checked = ValidationFacade::sanitize('123')->integerOnly()->run();
+        $checked = ValidationFacade::sanitize('123')->integer()->run();
         $this->assertEquals('123', $checked[0]);
         $this->assertNull($checked[1]);
 
-        $checked = ValidationFacade::sanitize('123,56')->integerOnly()->run();
+        $checked = ValidationFacade::sanitize('123,56')->integer()->run();
         $this->assertFalse($checked[0]);
-        $this->assertEquals('Must be an integer', $checked[1]);
+        $this->assertEquals('Укажите целое число', $checked[1]);
     }
 
     public function testMinLength(): void
     {
         $checked = ValidationFacade::set('')->required()->min(5)->run();
         $this->assertFalse($checked[0]);
-        $this->assertEquals('You must fill in the field', $checked[1]);
+        $this->assertEquals('Поле должно быть заполнено', $checked[1]);
 
         $checked = ValidationFacade::set('12345')->min(5)->run();
         $this->assertEquals('12345', $checked[0]);
@@ -104,14 +93,14 @@ class ValidationTest extends PHPUnit_Framework_TestCase
 
         $checked = ValidationFacade::set('123')->min(5)->run();
         $this->assertFalse($checked[0]);
-        $this->assertEquals('Too few characters specified', $checked[1]);
+        $this->assertEquals('Слишком мало символов', $checked[1]);
     }
 
     public function testMaxLength(): void
     {
         $checked = ValidationFacade::set('')->required()->max(5)->run();
         $this->assertFalse($checked[0]);
-        $this->assertEquals('You must fill in the field', $checked[1]);
+        $this->assertEquals('Поле должно быть заполнено', $checked[1]);
 
         $checked = ValidationFacade::set('12345')->max(5)->run();
         $this->assertEquals('12345', $checked[0]);
@@ -119,14 +108,14 @@ class ValidationTest extends PHPUnit_Framework_TestCase
 
         $checked = ValidationFacade::set('123456')->max(5)->run();
         $this->assertFalse($checked[0]);
-        $this->assertEquals('Too many characters specified', $checked[1]);
+        $this->assertEquals('Слишком много символов', $checked[1]);
     }
 
     public function testEquals(): void
     {
         $checked = ValidationFacade::set('')->required()->equals('456')->run();
         $this->assertFalse($checked[0]);
-        $this->assertEquals('You must fill in the field', $checked[1]);
+        $this->assertEquals('Поле должно быть заполнено', $checked[1]);
 
         $checked = ValidationFacade::set('12345')->equals('12345')->run();
         $this->assertEquals('12345', $checked[0]);
@@ -134,14 +123,14 @@ class ValidationTest extends PHPUnit_Framework_TestCase
 
         $checked = ValidationFacade::set('123')->equals('456')->run();
         $this->assertFalse($checked[0]);
-        $this->assertEquals('Values ​​do not match', $checked[1]);
+        $this->assertEquals('Значение не совпадает', $checked[1]);
     }
 
     public function testBetween(): void
     {
         $checked = ValidationFacade::set('')->required()->between(1, 10)->run();
         $this->assertFalse($checked[0]);
-        $this->assertEquals('You must fill in the field', $checked[1]);
+        $this->assertEquals('Поле должно быть заполнено', $checked[1]);
 
         $checked = ValidationFacade::sanitize('3')->between(1, 10)->run();
         $this->assertEquals('3', $checked[0]);
@@ -149,7 +138,7 @@ class ValidationTest extends PHPUnit_Framework_TestCase
 
         $checked = ValidationFacade::sanitize('123')->between(1, 10)->run();
         $this->assertFalse($checked[0]);
-        $this->assertEquals('Value out of range', $checked[1]);
+        $this->assertEquals('Значение выходит за пределы диапазона', $checked[1]);
     }
 
     public function testRegex(): void
@@ -157,7 +146,7 @@ class ValidationTest extends PHPUnit_Framework_TestCase
         // Проверка: значение не соответствует паттерну
         $checked = ValidationFacade::sanitize('bad_input')->regex('/^[a-z]+$/')->run();
         $this->assertFalse($checked[0]); // Проверка не пройдена
-        $this->assertEquals('Invalid format', $checked[1]); // Сообщение по умолчанию
+        $this->assertEquals('Неверный формат', $checked[1]); // Сообщение по умолчанию
 
         // Проверка: значение соответствует паттерну
         $checked = ValidationFacade::sanitize('goodinput')->regex('/^[a-z]+$/')->run();
@@ -172,7 +161,7 @@ class ValidationTest extends PHPUnit_Framework_TestCase
         // Проверка: значение не соответствует паттерну (числа)
         $checked = ValidationFacade::sanitize('abc123')->regex('/^\d+$/')->run();
         $this->assertFalse($checked[0]);
-        $this->assertEquals('Invalid format', $checked[1]);
+        $this->assertEquals('Неверный формат', $checked[1]);
     }
 
     public function testDate(): void
@@ -180,7 +169,7 @@ class ValidationTest extends PHPUnit_Framework_TestCase
         // Проверка: значение не соответствует формату по умолчанию (Y-m-d)
         $checked = ValidationFacade::sanitize('31/12/2024')->date()->run();
         $this->assertFalse($checked[0]);
-        $this->assertEquals('Invalid date', $checked[1]);
+        $this->assertEquals('Дата указана неверно', $checked[1]);
 
         // Проверка: значение соответствует формату по умолчанию (Y-m-d)
         $checked = ValidationFacade::sanitize('2024-12-31')->date()->run();
@@ -190,7 +179,7 @@ class ValidationTest extends PHPUnit_Framework_TestCase
         // Проверка: значение не соответствует формату d/m/Y
         $checked = ValidationFacade::sanitize('2024-12-31')->date('d/m/Y')->run();
         $this->assertFalse($checked[0]);
-        $this->assertEquals('Invalid date', $checked[1]);
+        $this->assertEquals('Дата указана неверно', $checked[1]);
 
         // Проверка: значение соответствует формату d/m/Y
         $checked = ValidationFacade::sanitize('31/12/2024')->date('d/m/Y')->run();
@@ -211,7 +200,7 @@ class ValidationTest extends PHPUnit_Framework_TestCase
         // Проверка: невисокосный год, невалидная дата (29 февраля)
         $checked = ValidationFacade::sanitize('2023-02-29')->date()->run();
         $this->assertFalse($checked[0]);
-        $this->assertEquals('Invalid date', $checked[1]);
+        $this->assertEquals('Дата указана неверно', $checked[1]);
     }
 
     public function testCustom(): void
@@ -220,7 +209,7 @@ class ValidationTest extends PHPUnit_Framework_TestCase
         $callback = fn($value) => strlen($value) > 5; // Требуем длину больше 5
         $checked = ValidationFacade::sanitize('short')->custom($callback)->run();
         $this->assertFalse($checked[0]);
-        $this->assertEquals('Validation failed', $checked[1]);
+        $this->assertEquals('Ошибка валидации', $checked[1]);
 
         // Проверка: кастомная валидация возвращает true
         $callback = fn($value) => strlen($value) > 5; // Требуем длину больше 5
@@ -238,7 +227,7 @@ class ValidationTest extends PHPUnit_Framework_TestCase
         $callback = fn($value) => (int)$value % 2 === 0;
         $checked = ValidationFacade::sanitize('5')->custom($callback)->run();
         $this->assertFalse($checked[0]);
-        $this->assertEquals('Validation failed', $checked[1]);
+        $this->assertEquals('Ошибка валидации', $checked[1]);
 
         // Проверка: кастомное сообщение об ошибке
         $customMessage = 'Value must be greater than 10';
@@ -253,7 +242,7 @@ class ValidationTest extends PHPUnit_Framework_TestCase
         // Проверка: значение не содержится в разрешённом списке (строгое сравнение: '1' !== 1)
         $checked = ValidationFacade::sanitize('1')->in([1, 2, 3])->run(); // <--- без `true`
         $this->assertFalse($checked[0]);
-        $this->assertEquals('Invalid value selected', $checked[1]);
+        $this->assertEquals('Выбрано неверное значение', $checked[1]);
 
         // Проверка: значение содержится в разрешённом списке
         $checked = ValidationFacade::sanitize('two')->in(['one', 'two', 'three'])->run();
@@ -276,7 +265,7 @@ class ValidationTest extends PHPUnit_Framework_TestCase
     {
         $checked = ValidationFacade::set('')->required()->email('user@example.com')->run();
         $this->assertFalse($checked[0]);
-        $this->assertEquals('You must fill in the field', $checked[1]);
+        $this->assertEquals('Поле должно быть заполнено', $checked[1]);
 
         $checked = ValidationFacade::email('user@example.com')->run();
         $this->assertEquals('user@example.com', $checked[0]);
@@ -284,14 +273,14 @@ class ValidationTest extends PHPUnit_Framework_TestCase
 
         $checked = ValidationFacade::email('123')->run();
         $this->assertFalse($checked[0]);
-        $this->assertEquals('Email is invalid', $checked[1]);
+        $this->assertEquals('Email указан неверно', $checked[1]);
     }
 
     public function testUrl(): void
     {
         $checked = ValidationFacade::set('')->required()->url()->run();
         $this->assertFalse($checked[0]);
-        $this->assertEquals('You must fill in the field', $checked[1]);
+        $this->assertEquals('Поле должно быть заполнено', $checked[1]);
 
         $checked = ValidationFacade::sanitize("https://www.example.com/path?query=value&other=1#section")->url()->run();
         $this->assertEquals("https://www.example.com/path?query=value&other=1#section", $checked[0]);
@@ -299,7 +288,7 @@ class ValidationTest extends PHPUnit_Framework_TestCase
 
         $checked = ValidationFacade::sanitize('123')->url()->run();
         $this->assertFalse($checked[0]);
-        $this->assertEquals('Invalid URL', $checked[1]);
+        $this->assertEquals('Некорректный URL-адрес', $checked[1]);
     }
 
     public function testCsrf(): void
@@ -348,7 +337,7 @@ class ValidationTest extends PHPUnit_Framework_TestCase
         $this->assertCount(3, $checked);
     }
 
-    public function testFlash(): void
+    public function testErrors(): void
     {
         $data = [
             'required' => ValidationFacade::set('')->required()->run(),
@@ -356,9 +345,6 @@ class ValidationTest extends PHPUnit_Framework_TestCase
             'min'      => ValidationFacade::set('')->required()->min(5)->run(),
             'max'      => ValidationFacade::set('')->required()->max(5)->run(),
         ];
-
-        $alerts = ValidationFacade::getAlerts($data, ['required']);
-        $this->assertCount(3, $alerts);
 
         $errors = ValidationFacade::getErrors($data, ['required']);
         $this->assertCount(3, $errors);
