@@ -2,28 +2,40 @@
 - [Rudra\Validation\Validation](#rudra_validation_validation)
 - [Rudra\Validation\ValidationFacade](#rudra_validation_validationfacade)
 - [Rudra\Validation\ValidationInterface](#rudra_validation_validationinterface)
-<hr>
+
+
+---
+
+
 
 <a id="rudra_validation_validation"></a>
 
 ### Class: Rudra\Validation\Validation
 | Visibility | Function |
 |:-----------|:---------|
-| public | `run(): array`<br>Returns the result of the check as an array.<br>The first element is a flag indicating the success of the check, the second is an error message (or null).<br>Resets the internal state: clears the message and marks the check as completed.<br>--------------------<br>Возвращает результат проверки в виде массива.<br>Первый элемент — флаг успешности проверки, второй — сообщение об ошибке (или null).<br>Сбрасывает внутреннее состояние: очищает сообщение и помечает проверку как выполненную. |
-| public | `approve(array $data): bool`<br>Checks an array of results for errors.<br>Returns true if all elements are successful (the first value in each subarray === true).<br>--------------------<br>Проверяет массив результатов на наличие ошибок.<br>Возвращает true, если все элементы успешны (первое значение в каждом подмассиве === true). |
-| public | `getValidated(array $data, array $excludedKeys): array`<br>Extracts the results of the check (true/false) from the data array and returns them in a clean form.<br>Excludes the specified keys if they are passed.<br>--------------------<br>Извлекает результаты проверки (true/false) из массива данных и возвращает их в чистом виде.<br>Исключает указанные ключи, если они переданы. |
-| public | `getAlerts(array $data, array $excludedKeys): array`<br>Extracts messages (such as errors or warnings) from the check data.<br>Returns an associative array: field keys => corresponding messages.<br>Excludes the specified keys if they are passed.<br>--------------------<br>Извлекает сообщения (например, ошибки или предупреждения) из данных проверки.<br>Возвращает ассоциативный массив: ключ поле => соответствующeе сообщениe.<br>Исключает указанные ключи, если они переданы. |
-| private | `removeExcluded(array $inputArray, array $excludedKeys): array`<br>Removes the specified keys from the array and returns the cleaned array.<br>--------------------<br>Удаляет указанные ключи из массива и возвращает очищенный массив. |
-| public | `set(?mixed $verifiable): Rudra\Validation\ValidationInterface`<br>Sets the value to be checked (validated).<br>--------------------<br>Устанавливает значение, которое будет проверяться (валидироваться). |
-| public | `sanitize(string $verifiable, array\|string\|null $allowableTags): Rudra\Validation\ValidationInterface`<br>Cleans the input string from HTML tags (with the option to allow certain tags)<br>and saves the result for further checking.<br>--------------------<br>Очищает входную строку от HTML-тегов (с возможностью разрешить определённые теги)<br>и сохраняет результат для дальнейшей проверки. |
-| public | `email(string $verifiable, string $message): Rudra\Validation\ValidationInterface`<br>Checks if the specified string is a valid email address.<br>Saves the result of the check and sets an error message if the email is invalid.<br>--------------------<br>Проверяет, является ли указанная строка корректным email-адресом.<br>Сохраняет результат проверки и устанавливает сообщение об ошибке, если email некорректен. |
-| public | `required(string $message): Rudra\Validation\ValidationInterface`<br>Checks if the field is filled (not an empty string).<br>If the value is missing or consists of spaces — sets the specified error message.<br>--------------------<br>Проверяет, заполнено ли поле (не пустая строка).<br>Если значение отсутствует или состоит из пробелов — устанавливает указанное сообщение об ошибке. |
-| public | `integer(string $message): Rudra\Validation\ValidationInterface`<br>Checks if the current value is a number (integer or floating point).<br>Sets the specified error message if the check fails.<br>--------------------<br>Проверяет, является ли текущее значение числом (целым или с плавающей точкой).<br>Устанавливает указанное сообщение об ошибке, если проверка не пройдена. |
-| public | `min(int $length, string $message): Rudra\Validation\ValidationInterface`<br>Checks that the string length is not less than the specified value.<br>Sets an error message if the check fails.<br>--------------------<br>Проверяет, что длина строки не меньше указанного значения.<br>Устанавливает сообщение об ошибке, если проверка не пройдена. |
-| public | `max(int $length, string $message): Rudra\Validation\ValidationInterface`<br>Checks that the string length does not exceed the specified value.<br>Sets an error message if the check fails.<br>--------------------<br>Проверяет, что длина строки не превышает указанного значения.<br>Устанавливает сообщение об ошибке, если проверка не пройдена. |
-| public | `equals(?mixed $verifiable, string $message): Rudra\Validation\ValidationInterface`<br>Checks if the current value matches the specified one.<br>Uses strict comparison.<br>--------------------<br>Проверяет, совпадает ли текущее значение с указанным.<br>Использует строгое сравнение. |
-| public | `csrf(array $csrfSession, string $message): Rudra\Validation\ValidationInterface`<br>Checks if the current value is contained in the array of valid CSRF tokens.<br>Used for protection against cross-site request forgery (CSRF).<br>--------------------<br>Проверяет, содержится ли текущее значение в массиве допустимых CSRF-токенов.<br>Используется для защиты от межсайтовой подделки запросов (CSRF). |
-| private | `validate(bool $bool, string $message): Rudra\Validation\ValidationInterface`<br>Performs a condition check and saves the validation result.<br>If the check fails, sets an error message.<br>--------------------<br>Выполняет проверку условия и сохраняет результат валидации.<br>Если проверка не пройдена, устанавливает сообщение об ошибке. |
+| public | `run(): array`<br>Returns the result of the check as an array.<br>The first element is the validated value (or false), the second is the error message (or null).<br>Resets the internal state for the next validation chain. |
+| public | `approve(array $data): bool`<br>Checks an array of results for errors.<br>Returns true if all elements are successful (the first value in each subarray === true). |
+| public | `getValidated(array $data, array $excludedKeys): array`<br>Extracts validated values from the data array.<br>Returns an associative array where keys are field names and values are the validated data.<br>Excludes the specified keys if they are passed. |
+| public | `setAliases(array $aliases): void`<br>Sets aliases for fields used in validation.<br>Aliases are applied in the getErrors method to form human-readable field names in error messages. |
+| public | `getErrors(array $data, array $excludedKeys): array`<br>Extracts error messages from validation data.<br>Returns an associative array where the key is the field name,<br>and the value is an array containing the error message and the field alias. |
+| private | `removeExcluded(array $inputArray, array $excludedKeys): array`<br>Removes the specified keys from the array and returns the cleaned array. |
+| public | `set(mixed $verifiable): Rudra\Validation\ValidationInterface`<br>Sets the value to be checked (validated). |
+| public | `sanitize(string $verifiable, array\|string\|null $allowableTags): Rudra\Validation\ValidationInterface`<br>Cleans the input string from HTML tags (with the option to allow certain tags)<br>and saves the result for further checking. |
+| public | `email(string $verifiable, string $message): Rudra\Validation\ValidationInterface`<br>Checks if the specified string is a valid email address.<br>Saves the result of the check and sets an error message if the email is invalid. |
+| public | `required(string $message): Rudra\Validation\ValidationInterface`<br>Checks if the field is filled (not an empty string).<br>If the value is missing or consists of spaces — sets the specified error message. |
+| public | `min(int $length, string $message): Rudra\Validation\ValidationInterface`<br>Checks that the string length is not less than the specified value.<br>Sets an error message if the check fails. |
+| public | `max(int $length, string $message): Rudra\Validation\ValidationInterface`<br>Checks that the string length does not exceed the specified value.<br>Sets an error message if the check fails. |
+| public | `equals(mixed $verifiable, string $message): Rudra\Validation\ValidationInterface`<br>Checks if the current value matches the specified one.<br>Uses strict comparison. |
+| public | `csrf(array $csrfSession, string $message): Rudra\Validation\ValidationInterface`<br>Checks if the current value is contained in the array of valid CSRF tokens.<br>Used for protection against cross-site request forgery (CSRF). |
+| public | `url(string $message): Rudra\Validation\ValidationInterface`<br>Checks if the current value is a valid URL.<br>Sets the specified error message if the check fails. |
+| public | `numeric(string $message): Rudra\Validation\ValidationInterface`<br>Checks if the current value is numeric (integer or floating-point number).<br>Sets the specified error message if the check fails. |
+| public | `integer(string $message): Rudra\Validation\ValidationInterface`<br>Checks if the current value is a valid integer (not a float or string representation of a float).<br>Sets the specified error message if the check fails. |
+| public | `between(int\|float $min, int\|float $max, string $message): Rudra\Validation\ValidationInterface`<br>Checks that the numeric value is within the specified range (inclusive).<br>Sets the specified error message if the value is outside the range or not numeric. |
+| public | `regex(string $pattern, string $message): Rudra\Validation\ValidationInterface`<br>Checks if the current value matches the specified regular expression pattern.<br>Sets the specified error message if the pattern does not match. |
+| public | `date(string $format, string $message): Rudra\Validation\ValidationInterface`<br>Checks if the current value is a valid date in the specified format.<br>Uses strict comparison to avoid ambiguous date interpretations.<br>Sets the specified error message if the date is invalid. |
+| public | `custom(callable $callback, string $message): Rudra\Validation\ValidationInterface`<br>Performs a custom validation using a user-defined callback function.<br>The callback receives the current value and must return true or false.<br>Sets the specified error message if the callback returns false. |
+| public | `in(array $allowed, string $message): Rudra\Validation\ValidationInterface`<br>Checks if the current value is in the allowed list. |
+| private | `validate(bool $condition, string $message): Rudra\Validation\ValidationInterface`<br>Performs a condition check and saves the validation result.<br>If the check fails, sets an error message. |
 
 
 <a id="rudra_validation_validationfacade"></a>
@@ -31,7 +43,7 @@
 ### Class: Rudra\Validation\ValidationFacade
 | Visibility | Function |
 |:-----------|:---------|
-| public static | `__callStatic(string $method, array $parameters): ?mixed`<br> |
+| public static | `__callStatic(string $method, array $parameters): mixed`<br>Handles static method calls for the Facade class<br>It dynamically resolves the underlying class name by removing "Facade" from the class name<br>If the resolved class does not exist, it attempts to clean up the class name by removing spaces<br>If the resolved class is not already registered in the container, it registers it<br>Finally, it delegates the static method call to the resolved class instance |
 
 
 <a id="rudra_validation_validationinterface"></a>
@@ -39,19 +51,29 @@
 ### Class: Rudra\Validation\ValidationInterface
 | Visibility | Function |
 |:-----------|:---------|
-| abstract public | `run(): array`<br>Returns the result of the check as an array.<br>The first element is a flag indicating the success of the check, the second is an error message (or null).<br>Resets the internal state: clears the message and marks the check as completed.<br>--------------------<br>Возвращает результат проверки в виде массива.<br>Первый элемент — флаг успешности проверки, второй — сообщение об ошибке (или null).<br>Сбрасывает внутреннее состояние: очищает сообщение и помечает проверку как выполненную. |
-| abstract public | `approve(array $data): bool`<br>Checks an array of results for errors.<br>Returns true if all elements are successful (the first value in each subarray === true).<br>--------------------<br>Проверяет массив результатов на наличие ошибок.<br>Возвращает true, если все элементы успешны (первое значение в каждом подмассиве === true). |
-| abstract public | `getValidated(array $data, array $excludedKeys): array`<br>Extracts the results of the check (true/false) from the data array and returns them in a clean form.<br>Excludes the specified keys if they are passed.<br>--------------------<br>Извлекает результаты проверки (true/false) из массива данных и возвращает их в чистом виде.<br>Исключает указанные ключи, если они переданы. |
-| abstract public | `getAlerts(array $data, array $excludedKeys): array`<br>Extracts messages (such as errors or warnings) from the check data.<br>Returns an associative array: field keys => corresponding messages.<br>Excludes the specified keys if they are passed.<br>--------------------<br>Извлекает сообщения (например, ошибки или предупреждения) из данных проверки.<br>Возвращает ассоциативный массив: ключ поле => соответствующeе сообщениe.<br>Исключает указанные ключи, если они переданы. |
-| abstract public | `set(?mixed $verifiable): Rudra\Validation\ValidationInterface`<br>Sets the value to be checked (validated).<br>--------------------<br>Устанавливает значение, которое будет проверяться (валидироваться). |
-| abstract public | `sanitize(string $verifiable, array\|string\|null $allowableTags): Rudra\Validation\ValidationInterface`<br>Cleans the input string from HTML tags (with the option to allow certain tags)<br>and saves the result for further checking.<br>--------------------<br>Очищает входную строку от HTML-тегов (с возможностью разрешить определённые теги)<br>и сохраняет результат для дальнейшей проверки. |
-| abstract public | `email(string $verifiable, string $message): Rudra\Validation\ValidationInterface`<br>Checks if the specified string is a valid email address.<br>Saves the result of the check and sets an error message if the email is invalid.<br>--------------------<br>Проверяет, является ли указанная строка корректным email-адресом.<br>Сохраняет результат проверки и устанавливает сообщение об ошибке, если email некорректен. |
-| abstract public | `required(string $message): Rudra\Validation\ValidationInterface`<br>Checks if the field is filled (not an empty string).<br>If the value is missing or consists of spaces — sets the specified error message.<br>--------------------<br>Проверяет, заполнено ли поле (не пустая строка).<br>Если значение отсутствует или состоит из пробелов — устанавливает указанное сообщение об ошибке. |
-| abstract public | `integer(string $message): Rudra\Validation\ValidationInterface`<br>Checks if the current value is a number (integer or floating point).<br>Sets the specified error message if the check fails.<br>--------------------<br>Проверяет, является ли текущее значение числом (целым или с плавающей точкой).<br>Устанавливает указанное сообщение об ошибке, если проверка не пройдена. |
-| abstract public | `min(int $length, string $message): Rudra\Validation\ValidationInterface`<br>Checks that the string length is not less than the specified value.<br>Sets an error message if the check fails.<br>--------------------<br>Проверяет, что длина строки не меньше указанного значения.<br>Устанавливает сообщение об ошибке, если проверка не пройдена. |
-| abstract public | `max(int $length, string $message): Rudra\Validation\ValidationInterface`<br>Checks that the string length does not exceed the specified value.<br>Sets an error message if the check fails.<br>--------------------<br>Проверяет, что длина строки не превышает указанного значения.<br>Устанавливает сообщение об ошибке, если проверка не пройдена. |
-| abstract public | `equals(?mixed $verifiable, string $message): Rudra\Validation\ValidationInterface`<br>Checks if the current value matches the specified one.<br>Uses strict comparison.<br>-----------------------------<br>Проверяет, совпадает ли текущее значение с указанным.<br>Использует строгое сравнение. |
-| abstract public | `csrf(array $csrfSession, string $message): Rudra\Validation\ValidationInterface`<br>Checks if the current value is contained in the array of valid CSRF tokens.<br>Used for protection against cross-site request forgery (CSRF).<br>--------------------<br>Проверяет, содержится ли текущее значение в массиве допустимых CSRF-токенов.<br>Используется для защиты от межсайтовой подделки запросов (CSRF). |
-<hr>
+| abstract public | `run(): array`<br> |
+| abstract public | `approve(array $data): bool`<br> |
+| abstract public | `getValidated(array $data, array $excludedKeys): array`<br> |
+| abstract public | `getErrors(array $data, array $excludedKeys): array`<br> |
+| abstract public | `setAliases(array $aliases): void`<br> |
+| abstract public | `set(mixed $verifiable): Rudra\Validation\ValidationInterface`<br> |
+| abstract public | `sanitize(string $verifiable, array\|string\|null $allowableTags): Rudra\Validation\ValidationInterface`<br> |
+| abstract public | `email(string $verifiable, string $message): Rudra\Validation\ValidationInterface`<br> |
+| abstract public | `required(string $message): Rudra\Validation\ValidationInterface`<br> |
+| abstract public | `min(int $length, string $message): Rudra\Validation\ValidationInterface`<br> |
+| abstract public | `max(int $length, string $message): Rudra\Validation\ValidationInterface`<br> |
+| abstract public | `equals(mixed $verifiable, string $message): Rudra\Validation\ValidationInterface`<br> |
+| abstract public | `csrf(array $csrfSession, string $message): Rudra\Validation\ValidationInterface`<br> |
+| abstract public | `url(string $message): Rudra\Validation\ValidationInterface`<br> |
+| abstract public | `numeric(string $message): Rudra\Validation\ValidationInterface`<br> |
+| abstract public | `integer(string $message): Rudra\Validation\ValidationInterface`<br> |
+| abstract public | `between(int\|float $min, int\|float $max, string $message): Rudra\Validation\ValidationInterface`<br> |
+| abstract public | `regex(string $pattern, string $message): Rudra\Validation\ValidationInterface`<br> |
+| abstract public | `date(string $format, string $message): Rudra\Validation\ValidationInterface`<br> |
+| abstract public | `custom(callable $callback, string $message): Rudra\Validation\ValidationInterface`<br> |
+| abstract public | `in(array $allowed, string $message): Rudra\Validation\ValidationInterface`<br> |
 
-###### created with [Rudra-Documentation-Collector](#https://github.com/Jagepard/Rudra-Documentation-Collector)
+
+---
+
+###### created with [Rudra-Documentation-Collector](https://github.com/Jagepard/Rudra-Documentation-Collector)

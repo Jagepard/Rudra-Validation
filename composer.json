@@ -23,7 +23,7 @@
         "source": "https://github.com/Jagepard/Rudra-Validation"    
     },
     "require": {
-        "php": ">=8.3",
+        "php": "^8.3",
         "rudra/container": "self.version"
     },
     "autoload": {
