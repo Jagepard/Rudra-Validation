@@ -7,16 +7,15 @@
  *
  * @author  Korotkov Danila (Jagepard) <jagepard@yandex.ru>
  * @license https://mozilla.org/MPL/2.0/  MPL-2.0
- * 
- * phpunit src/tests/ContainerTest --coverage-html src/tests/coverage-html
  */
 
 namespace Rudra\Validation\Tests;
 
-use PHPUnit\Framework\TestCase as PHPUnit_Framework_TestCase;
-use Rudra\Validation\{Validation, ValidationInterface, ValidationFacade};
+use Rudra\Validation\Validation;
+use Rudra\Validation\ValidationFacade;
+use Rudra\Validation\ValidationInterface;
 
-class ValidationTest extends PHPUnit_Framework_TestCase
+class ValidationTest extends \PHPUnit\Framework\TestCase
 {
     protected ValidationInterface $validation;
 
