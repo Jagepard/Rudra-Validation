@@ -143,7 +143,7 @@ class Validation implements ValidationInterface
      * Saves the result of the check and sets an error message if the email is invalid.
      */
     #[\Override]
-    public function email(string $verifiable, string $message = 'Email указан неверно'): ValidationInterface
+    public function email(string $verifiable, string $message = 'Invalid email address'): ValidationInterface
     {
         $this->set($verifiable);
         return $this->validate(filter_var($verifiable, FILTER_VALIDATE_EMAIL) !== false, $message);
@@ -154,7 +154,7 @@ class Validation implements ValidationInterface
      * If the value is missing or consists of spaces — sets the specified error message.
      */
     #[\Override]
-    public function required(string $message = 'Поле должно быть заполнено'): ValidationInterface
+    public function required(string $message = 'This field is required'): ValidationInterface
     {
         return $this->validate((mb_strlen($this->verifiable) > 0), $message);
     }
@@ -164,7 +164,7 @@ class Validation implements ValidationInterface
      * Sets an error message if the check fails.
      */
     #[\Override]
-    public function min(int $length, string $message = 'Слишком мало символов'): ValidationInterface
+    public function min(int $length, string $message = 'Too few characters'): ValidationInterface
     {
         return $this->validate((mb_strlen($this->verifiable) >= $length), $message);
     }
@@ -174,7 +174,7 @@ class Validation implements ValidationInterface
      * Sets an error message if the check fails.
      */
     #[\Override]
-    public function max(int $length, string $message = 'Слишком много символов'): ValidationInterface
+    public function max(int $length, string $message = 'Too many characters'): ValidationInterface
     {
         return $this->validate((mb_strlen($this->verifiable) <= $length), $message);
     }
@@ -184,7 +184,7 @@ class Validation implements ValidationInterface
      * Uses strict comparison.
      */
     #[\Override]
-    public function equals(mixed $verifiable, string $message = 'Значение не совпадает'): ValidationInterface
+    public function equals(mixed $verifiable, string $message = 'Values do not match'): ValidationInterface
     {
         return $this->validate(($this->verifiable === $verifiable), $message);
     }
@@ -204,7 +204,7 @@ class Validation implements ValidationInterface
      * Sets the specified error message if the check fails.
      */
     #[\Override]
-    public function url(string $message = 'Некорректный URL-адрес'): ValidationInterface
+    public function url(string $message = 'Invalid URL'): ValidationInterface
     {
         $isValid = filter_var($this->verifiable, FILTER_VALIDATE_URL) !== false;
         return $this->validate($isValid, $message);
@@ -215,7 +215,7 @@ class Validation implements ValidationInterface
      * Sets the specified error message if the check fails.
      */
     #[\Override]
-    public function numeric(string $message = 'Требуется числовое значение'): ValidationInterface
+    public function numeric(string $message = 'Numeric value required'): ValidationInterface
     {
         return $this->validate(is_numeric($this->verifiable), $message);
     }
@@ -225,7 +225,7 @@ class Validation implements ValidationInterface
      * Sets the specified error message if the check fails.
      */
     #[\Override]
-    public function integer(string $message = 'Укажите целое число'): ValidationInterface
+    public function integer(string $message = 'Integer required'): ValidationInterface
     {
         return $this->validate(
             is_numeric($this->verifiable) && (filter_var($this->verifiable, FILTER_VALIDATE_INT) !== false),
@@ -238,7 +238,7 @@ class Validation implements ValidationInterface
      * Sets the specified error message if the value is outside the range or not numeric.
      */
     #[\Override]
-    public function between(int|float $min, int|float $max, string $message = 'Значение выходит за пределы диапазона'): ValidationInterface
+    public function between(int|float $min, int|float $max, string $message = 'Value is out of range'): ValidationInterface
     {
         if (!is_numeric($this->verifiable)) {
             return $this->validate(false, $message);
@@ -252,7 +252,7 @@ class Validation implements ValidationInterface
      * Sets the specified error message if the pattern does not match.
      */
     #[\Override]
-    public function regex(string $pattern, string $message = 'Неверный формат'): ValidationInterface
+    public function regex(string $pattern, string $message = 'Invalid format'): ValidationInterface
     {
         return $this->validate(preg_match($pattern, $this->verifiable) === 1, $message);
     }
@@ -263,7 +263,7 @@ class Validation implements ValidationInterface
      * Sets the specified error message if the date is invalid.
      */
     #[\Override]
-    public function date(string $format = 'Y-m-d', string $message = 'Дата указана неверно'): ValidationInterface
+    public function date(string $format = 'Y-m-d', string $message = 'Invalid date'): ValidationInterface
     {
         $d = \DateTime::createFromFormat($format, $this->verifiable);
         return $this->validate($d && $d->format($format) === $this->verifiable, $message);
@@ -275,7 +275,7 @@ class Validation implements ValidationInterface
      * Sets the specified error message if the callback returns false.
      */
     #[\Override]
-    public function custom(callable $callback, string $message = 'Ошибка валидации'): ValidationInterface
+    public function custom(callable $callback, string $message = 'Validation error'): ValidationInterface
     {
         return $this->validate($callback($this->verifiable), $message);
     }
@@ -284,7 +284,7 @@ class Validation implements ValidationInterface
      * Checks if the current value is in the allowed list.
      */
     #[\Override]
-    public function in(array $allowed, string $message = 'Выбрано неверное значение'): ValidationInterface
+    public function in(array $allowed, string $message = 'Invalid value selected'): ValidationInterface
     {
         return $this->validate(in_array($this->verifiable, $allowed, true), $message);
     }
