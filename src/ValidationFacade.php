@@ -14,15 +14,18 @@ namespace Rudra\Validation;
 use Rudra\Container\Traits\FacadeTrait;
 
 /**
- * @method static ValidationInterface set($data)
- * @method static ValidationInterface sanitize(string $data, $allowableTags = null)
- * @method static ValidationInterface email($data, string $message = 'Email is invalid')
- * @method static ValidationInterface captcha($captcha = false, $secret = '', $message = 'Please fill in the field :: reCaptcha')
+ * Entry-point methods for the fluent validation chain.
+ * Methods like required(), min(), max(), etc. are called on the instance returned by set()/sanitize()/email().
+ *
  * @method static bool approve(array $data)
  * @method static array getValidated(array $data, array $excludedKeys = [])
- * @method static array getAlerts(array $data, array $excludedKeys = [])
+ * @method static array getErrors(array $data, array $excludedKeys = [])
+ * @method static void setAliases(array $aliases)
+ * @method static ValidationInterface set(mixed $verifiable)
+ * @method static ValidationInterface sanitize(string $verifiable, array|string|null $allowableTags = null)
+ * @method static ValidationInterface email(string $verifiable, string $message = 'Invalid email address')
  *
- * @see ValidationFacade
+ * @see Validation
  */
 final class ValidationFacade
 {
