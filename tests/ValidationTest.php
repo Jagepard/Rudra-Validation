@@ -285,8 +285,8 @@ class ValidationTest extends \PHPUnit\Framework\TestCase
         $this->assertFalse($checked[0]);
         $this->assertEquals('This field is required', $checked[1]);
 
-        $checked = ValidationFacade::sanitize("https://www.example.com/path?query=value&other=1#section")->url()->run();
-        $this->assertEquals("https://www.example.com/path?query=value&other=1#section", $checked[0]);
+        $checked = ValidationFacade::sanitize('https://www.example.com/path?query=value&other=1#section')->url()->run();
+        $this->assertEquals('https://www.example.com/path?query=value&other=1#section', $checked[0]);
         $this->assertNull($checked[1]);
 
         $checked = ValidationFacade::sanitize('123')->url()->run();
