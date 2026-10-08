@@ -4,7 +4,7 @@
 [![Coverage Status](https://coveralls.io/repos/github/Jagepard/Rudra-Validation/badge.svg?branch=master)](https://coveralls.io/github/Jagepard/Rudra-Validation?branch=master)
 -----
 
-# Rudra-Validation | [API](https://github.com/Jagepard/Rudra-Validation/blob/master/docs.md "Documentation API")
+# Rudra-Validation | [API](https://github.com/Jagepard/Rudra-Validation/blob/master/docs.md 'Documentation API')
 ### Installation
 ```
 composer require rudra/validation
@@ -63,11 +63,11 @@ ValidationFacade::email('user@example.com')->max(25)->run();
 ### Data validation check
 ```php
 if (ValidationFacade::approve($processed)) {
-    $validated = ValidationFacade::getValidated($processed, ["csrf", "_method"]);
+    $validated = ValidationFacade::getValidated($processed, ['csrf', '_method']);
 }
 ```
 ##### getValidated
-Gets an array of validated data excluding the keys ["csrf", "_method"]
+Gets an array of validated data excluding the keys ['csrf', '_method']
 ### Get all error messages
 ```php
 ValidationFacade::getErrors($processed, ['required']);
